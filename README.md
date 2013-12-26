@@ -3,7 +3,7 @@
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 
 * Just 1KB gzipped
-* Optional encoding of `flashVars`
+* An object can be passed to `flashVars`
 * Solved IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
 
 ## Component
