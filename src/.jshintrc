@@ -1,0 +1,31 @@
+{
+  "browser": true,
+  "esnext": true,
+
+  "bitwise": true,
+  "boss": true,
+  "curly": true,
+  "devel": true,
+  "eqnull": true,
+  "expr": true,
+  "funcscope": true,
+  "globalstrict": true,
+  "loopfunc": true,
+  "newcap": false,
+  "noempty": true,
+  "nonstandard": true,
+  "onecase": true,
+  "regexdash": true,
+  "sub": false,
+  "trailing": true,
+  "undef": true,
+  "unused": "vars",
+
+  "globals": {
+    "__VERSION__": false,
+    "__DEV__": false,
+    "require": false,
+    "module": false,
+    "exports": false
+  }
+}
