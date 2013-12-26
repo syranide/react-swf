@@ -26,16 +26,9 @@
     "react": ">=0.8"
   },
   "devDependencies": {
-    "grunt": "",
-    "grunt-compare-size": "",
-    "grunt-contrib-uglify": "",
-    "grunt-contrib-jshint": "",
-    "grunt-contrib-clean": "",
-    "grunt-contrib-copy": "",
-    "gzip-js": ""
   },
   "engines": {
     "node": ">=0.10.0"
   },
-  "main": "src/react-swf.js"
+  "main": "src/index.js"
 }
