@@ -2,8 +2,9 @@
 
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 
-Easy installation with `react-swf.min.js` or `npm install react-swf`
+Easy installation with `react-swf.min.js` or `npm install react-swf`.
 
+* Browser bundle has optional CommonJS/AMD module loader support
 * Only ~1KB gzipped
 * An object can be passed to `flashVars` and is automatically encoded
 * Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
@@ -46,17 +47,19 @@ if (utils.isFPVersionSupported('10.0')) {
 
 ## Instructions
 
-#### Browser bundle, without a module loader
+#### NPM-package
 
-You are using `react-swf.min.js` without a module loader.
+Simply install it with `npm install react-swf` and require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf/utils')`.
 
-Simply include it with `<script src="react-swf.min.js"></script>` it is available through the global `ReactSWF`, utility functions are available through `ReactSWF.utils.*`.
+#### Browser bundle (standalone)
 
-#### Node or CommonJS/AMD-compatible module loader
+You are using `react-swf.min.js`
 
-You are using `npm install react-swf` or a CommonJS/AMD module loader.
+Simply include it with `<script src="react-swf.min.js"></script>` and it is available through the global `ReactSWF`, utility functions are available through `ReactSWF.utils.*`.
 
-Require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf/utils')`.
+#### Browser bundle (CommonJS/AMD)
+
+Simply include it with `<script src="react-swf.min.js"></script>` if necessary and require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf').utils.*`.
 
 ## Documentation
 
@@ -106,7 +109,7 @@ Prevents untrusted Flash-content from accessing sensitive information through br
 
 #### Utility functions
 
-These functions are available through `ReactSWF.utils.*` or `require('react-swf/utils').*` depending on your choice of installation.
+These functions are available through `ReactSWF.utils.*`, `require('react-swf').utils.*` or `require('react-swf/utils').*`, read the instructions at the top if you are unsure which is right for you.
 
 ```
 require('react-swf/utils')
