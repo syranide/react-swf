@@ -113,7 +113,7 @@ require('react-swf/utils')
 
   getFPVersion()
     Detect installed Flash Player version. Result is cached.
-    {string} return 'X.Y.Z'-version, or null.
+    {?string} return 'X.Y.Z'-version, or null.
   
   isFPVersionSupported(version)
     Detect if installed Flash Player version meets requirements.
