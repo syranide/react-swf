@@ -8,20 +8,6 @@ Easy installation with `react-swf.min.js` or `npm install react-swf`
 * An object can be passed to `flashVars` and is automatically encoded
 * Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
 
-## Instructions
-
-#### Browser bundle, without a module loader
-
-You are using `react-swf.min.js` without a module loader.
-
-Simply include it with `<script src="react-swf.min.js"></script>` it is available through the global `ReactSWF`, utility functions are available through `ReactSWF.utils.*`.
-
-#### Node or CommonJS/AMD-compatible module loader
-
-You are using `npm install react-swf` or a CommonJS/AMD module loader.
-
-Require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf/utils')`.
-
 ## Examples
 
 #### React JSX example
@@ -57,6 +43,20 @@ if (utils.isFPVersionSupported('10.0')) {
   console.log('Flash Player ' + utils.getFPVersion()) + ' is not supported');
 }
 ```
+
+## Instructions
+
+#### Browser bundle, without a module loader
+
+You are using `react-swf.min.js` without a module loader.
+
+Simply include it with `<script src="react-swf.min.js"></script>` it is available through the global `ReactSWF`, utility functions are available through `ReactSWF.utils.*`.
+
+#### Node or CommonJS/AMD-compatible module loader
+
+You are using `npm install react-swf` or a CommonJS/AMD module loader.
+
+Require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf/utils')`.
 
 ## Documentation
 
