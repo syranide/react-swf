@@ -2,64 +2,54 @@
 
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 
-* ~1KB gzipped
+Easy installation with `react-swf.min.js` or `npm install react-swf`
+
+* Only ~1KB gzipped
 * An object can be passed to `flashVars` and is automatically encoded
 * Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
+
+## Instructions
+
+#### Browser bundle, without a module loader
+
+You are using `react-swf.min.js` without a module loader.
+
+Simply include it with `<script src="react-swf.min.js"></script>` it is available through the global `ReactSWF`, utility functions are available through `ReactSWF.utils.*`.
+
+#### Node or CommonJS/AMD-compatible module loader
+
+You are using `npm install react-swf` or a CommonJS/AMD module loader.
+
+Require it with `var ReactSWF = require('react-swf')`, utility functions are available through `require('react-swf/utils')`.
 
 ## Examples
 
 #### React JSX example
 
 ```
-/** @jsx React.DOM */
-var MyComponent = React.createClass({
-  render: function() {
-    var swf = require('react-swf');
-    
-    return (
-      <swf src="example.swf" 
-           width="300"
-           height="200"
-           wmode="transparent"
-           flashVars={{var1: 'A', var2: 1}} />
-    );
-  }
-});
-
-React.renderComponent(
-  <MyComponent />,
-  document.body
-);
+<ReactSWF
+  src="example.swf" 
+  width="300"
+  height="200"
+  wmode="transparent"
+  flashVars={{var1: 'A', var2: 1}} />
 ```
 
 #### JavaScript example
 
 ```
-var ReactSWF = require('react-swf');
-
-var MyComponent = React.createClass({
-  render: function() {
-    return ReactSWF({
-      src: 'example.swf',
-      width: 300,
-      height: 200,
-      wmode: 'transparent',
-      flashVars: {var1: 'A', var2: 1}
-    });
-  }
-});
-
-React.renderComponent(
-  MyComponent(null),
-  document.body
-);
+ReactSWF({
+  src: 'example.swf',
+  width: 300,
+  height: 200,
+  wmode: 'transparent',
+  flashVars: {var1: 'A', var2: 1}
+})
 ```
 
 #### Flash Player detection
 
 ```
-var utils = require('react-swf/utils');
-
 if (utils.isFPVersionSupported('10.0')) {
   // success, go ahead and render the ReactSWF-component
 } else {
@@ -116,7 +106,7 @@ Prevents untrusted Flash-content from accessing sensitive information through br
 
 #### Utility functions
 
-These functions does not require the use of the `ReactSWF`-component to function.
+These functions are available through `ReactSWF.utils.*` or `require('react-swf/utils').*` depending on your choice of installation.
 
 ```
 require('react-swf/utils')
@@ -129,5 +119,5 @@ require('react-swf/utils')
     Detect if installed Flash Player version meets requirements.
     {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
     {boolean} return True if version is supported.
-    
+
 ```
