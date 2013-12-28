@@ -1,16 +1,16 @@
-# [React](https://github.com/facebook/react)SWF
+# ReactSWF 0.6.0
 
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 
-* Just 1KB gzipped
-* An object can be passed to `flashVars`
-* Solved IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
+* ~1KB gzipped
+* An object can be passed to `flashVars` and is automatically encoded
+* Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
 
 ## Examples
 
-React JSX:
+#### React JSX example
 
-```js
+```
 /** @jsx React.DOM */
 var MyComponent = React.createClass({
   render: function() {
@@ -25,10 +25,16 @@ var MyComponent = React.createClass({
     );
   }
 });
+
+React.renderComponent(
+  <MyComponent />,
+  document.body
+);
 ```
 
-### JavaScript
-```js
+#### JavaScript example
+
+```
 var ReactSWF = require('react-swf');
 
 var MyComponent = React.createClass({
@@ -42,10 +48,16 @@ var MyComponent = React.createClass({
     });
   }
 });
+
+React.renderComponent(
+  MyComponent(null),
+  document.body
+);
 ```
 
-### Utilities
-```js
+#### Flash Player detection
+
+```
 var utils = require('react-swf/utils');
 
 if (utils.isFPVersionSupported('10.0')) {
@@ -54,43 +66,68 @@ if (utils.isFPVersionSupported('10.0')) {
   // not supported, use fallback or direct to Flash Player installer
   console.log('Flash Player ' + utils.getFPVersion()) + ' is not supported');
 }
-
-```
-## Component attributes
-
-```
-src {string}
-width {number}
-height {number}
-play {boolean}
-loop {boolean}
-menu {boolean}
-quality {enum}  =  low, autolow, autohigh, medium, high, best
-scale {enum}  =  default, noborder, exactfit, noscale
-align {enum}  =  l, t, r
-salign {enum}  =  l, t, r, tl, tr
-bgColor {color}  =  #RRGGBB
-wmode {enum}  =  window, direct, opaque, transparent, gpu
-base {url}
-allowScriptAccess {boolean}
-allowFullScreen {boolean}
-fullScreenAspectRatio {enum}  =  portait, landscape
-flashVars {object|string}
 ```
 
-http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html
+## Documentation
 
-## Utility functions
+#### ReactSWF attributes
+
+Detailed explanation of each attribute is found on [Flash OBJECT and EMBED tag attributes](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
+
+```
+require('react-swf')
+
+  src {string} [required]
+  width {number}
+  height {number}
+  
+  wmode {enum}
+  flashVars {object|string}
+  
+  base {string}
+  menu {boolean}
+  play {boolean}
+  loop {boolean}
+  quality {enum}
+  scale {enum}
+  align {enum}
+  salign {enum}
+  bgColor {color}
+  fullScreenAspectRatio {enum}
+  
+  allowFullScreen {boolean}
+  allowScriptAccess {boolean}
+    
+```
+
+##### wmode = transparent
+
+Is useful for enabling transparent Flash-content to blend seamlessly into a page, beware that there's a significant Flash-performance penalty associated with it so choose wisely.
+
+##### flashVars = {object}
+
+Allows sending a key-value object during *creation* that becomes available in ActionScript through `value = loaderInfo.parameters[key]`, roughly 64KB of serialized data is supported by Flash Player. Optionally, you can provide your own *encoded* string to be sent as-is to Flash Player.
+
+##### allowScriptAccess = false
+
+Prevents untrusted Flash-content from accessing sensitive information through browser script execution through `flash.external.ExternalInterface.call`.
+
+====
+
+#### Utility functions
+
+These functions does not require the use of the `ReactSWF`-component to function.
 
 ```
 require('react-swf/utils')
 
-getFPVersion()
-  Detect installed Flash Player version. Result is cached.
-  {string} return 'X.Y.Z'-version, or null.
-
-isFPVersionSupported(version)
-  Detect if installed Flash Player version meets requirements.
-  {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
-  {boolean} return True if version is supported.
+  getFPVersion()
+    Detect installed Flash Player version. Result is cached.
+    {string} return 'X.Y.Z'-version, or null.
+  
+  isFPVersionSupported(version)
+    Detect if installed Flash Player version meets requirements.
+    {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
+    {boolean} return True if version is supported.
+    
 ```
