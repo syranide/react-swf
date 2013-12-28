@@ -24,110 +24,47 @@
 
 'use strict';
 
+
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['exports', 'react'], factory);
+    define(['react'], factory);
   } else if (typeof exports === 'object') {
-    // CommonJS
-    factory(exports, require('react'));
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like enviroments that support module.exports,
+    // like Node.
+    module.exports = factory(require('react'));
   } else {
-    // Browser globals
-    factory((root.ReactSWF = {}), root.React);
+    // Browser globals (root is window)
+    root.ReactSWF = factory(root.React);
   }
-}(this, function (exports, React) {
-  
+}(this, function (React) {
+
+  var encodeFlashKeyValueRegex = /[\r%&+]/g;
   var encodeFlashKeyValueLookup = {
     '\r': '%0D', '%': '%25', '&': '%26', '+': '%2B', '=': '%3D'
   };
 
   var objectParamNames = {
-    play: true, loop: true, menu: true, quality: true, scale: true,
-    bgColor: true, wmode: true, base: true, allowScriptAccess: true,
+    play: true, loop: true, menu: true, quality: true, scale: true, align: true,
+    salign: true, bgColor: true, wmode: true, base: true, allowScriptAccess: true,
     allowFullScreen: true, fullScreenAspectRatio: true
   };
 
-  var flashPlayerVersion;
-
   var nextUniqueObjectSwfId = 0;
 
-  var memoryLeakWorkaround;
 
-
-  /**
-   * Get the installed Flash Player version.
-   *
-   * @return {?string} Version as X.Y.Z, null if not installed/enabled.
-   */
-  function getFPVersion() {
-    if (flashPlayerVersion === undefined) {
-      flashPlayerVersion = null;
-      
-      if ('plugins' in navigator) {
-        var plugin = navigator.plugins['Shockwave Flash'];
-        if (plugin) {
-          var mimeType = navigator.mimeTypes['application/x-shockwave-flash'];
-          if (mimeType && mimeType.enabledPlugin) {
-            flashPlayerVersion = plugin.description
-              .match(/(\d+)\.(\d+) r(\d+)/).slice(1).join('.');
-          }
-        }
-      } else if ('ActiveXObject' in window) {
-        try {
-          var axObject = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
-          if (axObject) {
-            flashPlayerVersion = axObject.GetVariable('$version')
-              .match(/(\d+),(\d+),(\d+)/).slice(1).join('.');
-          }
-        }
-        catch (e) {}
-      }
-    }
-    
-    return flashPlayerVersion;
+  function encodeFlashKeyValueEncoder(match) {
+    return encodeFlashKeyValueLookup[match];
   }
 
-  /**
-   * Checks if the required Flash Player version is supported by the client.
-   *
-   * @param {string} version Required version.
-   * @return {boolean} True if the version is supported.
-   */
-  function isFPVersionSupported(version) {
-    var supportedVersion = getFPVersion();
-    
-    if (supportedVersion === null) {
-      return false;
-    }
-    
-    var supportedVersionArray = supportedVersion.split('.');
-    var requiredVersionArray = version.split('.');
-    
-    for (var i = 0; i < requiredVersionArray.length; i++) {
-      if (+supportedVersionArray[i] > +requiredVersionArray[i]) {
-        return true;
-      }
-      if (+supportedVersionArray[i] < +requiredVersionArray[i]) {
-        return false;
-      }
-    }
-    
-    return true;
-  }
-
-  /**
-   * Encodes text for safe transport through flashVars.
-   *
-   * @param {*} text Text value to encode.
-   * @return {string} An encoded string.
-   */
   function encodeFlashKeyValue(string) {
     // Encode \r or it may be normalized into \n 
-    return ('' + string).replace(/[\r%&+]/g, function(match) {
-      return encodeFlashKeyValueLookup[match];
-    });
+    return ('' + string).replace(
+      encodeFlashKeyValueRegex,
+      encodeFlashKeyValueEncoder
+    );
   }
-
 
   function encodeFlashVarsObject(obj) {
     // Pushing encoded key-values to an array instead of immediately
@@ -135,16 +72,19 @@
     var list = [];
     
     for (var key in obj) {
-      list.push(
-        encodeFlashKeyValue(key) + '=' +
-        encodeFlashKeyValue(obj[key])
-      );
+      if (obj[key] !== null) {
+        list.push(
+          encodeFlashKeyValue(key) + '=' +
+          encodeFlashKeyValue(obj[key])
+        );
+      }
     }
     
     return list.join('&');
   }
 
-  var swf = React.createClass({
+
+  var ReactSWF = React.createClass({
     getInitialState: function() {
       return {
         // flash.external.ExternalInterface.addCallback requires a unique id
@@ -154,13 +94,9 @@
     componentWillUnmount: function() {
       // IE8: leaks memory if all ExternalInterface-callbacks have not been
       // removed. Only IE implements readyState, hasOwnProperty does not exist
-      // for DOM nodes in IE8.
+      // for DOM nodes in IE8, but does in IE9+.
       
-      if (memoryLeakWorkaround === undefined) {
-        memoryLeakWorkaround =
-          'readyState' in document && !('hasOwnProperty' in document);
-      }
-      if (memoryLeakWorkaround) {
+      if ('readyState' in document && !('hasOwnProperty' in document)) {
         this._cleanup();
       }
     },
@@ -176,7 +112,7 @@
     render: function() {
       var params = [];
       
-      // IE8: requires the use of the movie param instead of src
+      // IE8: requires the use of the movie param to function
       params.push(
         React.DOM.param({
           key: 'movie',
@@ -209,8 +145,8 @@
         
         params.push(
           React.DOM.param({
-            key: 'flashVars',
-            name: 'flashVars',
+            key: 'flashvars',
+            name: 'flashvars',
             value: encodedFlashVars
           })
         );
@@ -228,10 +164,80 @@
   });
 
 
-  module.exports.getFPVersion = getFPVersion;
-  module.exports.isFPVersionSupported = isFPVersionSupported;
+  var cachedFPVersion;
 
-  module.exports.DOM = {};
-  module.exports.DOM.swf = swf;
+  /**
+   * Detect installed Flash Player version. Result is cached.
+   *
+   * @return {?string} 'X.Y.Z'-version, or null.
+   */
+  function getFPVersion() {
+    if (cachedFPVersion === undefined) {
+      cachedFPVersion = null;
+      
+      if (navigator.plugins) {
+        var plugin = navigator.plugins['Shockwave Flash'];
+        if (plugin) {
+          var mimeType = navigator.mimeTypes['application/x-shockwave-flash'];
+          if (mimeType && mimeType.enabledPlugin) {
+            var matches = plugin.description
+              .match(/^Shockwave Flash (\d+)(?:\.(\d+))?(?: r(\d+))?/);
+            
+            cachedFPVersion =
+              matches[1] + '.' + (matches[2] || 0) + '.' + (matches[3] || 0);
+          }
+        }
+      }
+      if (window.ActiveXObject) {
+        try {
+          var axObject = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+          if (axObject) {
+            cachedFPVersion = axObject.GetVariable('$version')
+              .match(/^WIN (\d+),(\d+),(\d+)/).slice(1).join('.');
+          }
+        }
+        catch (e) {}
+      }
+    }
+    
+    return cachedFPVersion;
+  }
+
+  /**
+   * Detect if installed Flash Player version meets requirements.
+   *
+   * @param {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
+   * @return {boolean} True if version is supported.
+   */
+  function isFPVersionSupported(version) {
+    var supportedVersion = getFPVersion();
+    
+    if (supportedVersion === null) {
+      return false;
+    }
+    
+    var supportedVersionArray = supportedVersion.split('.');
+    var requiredVersionArray = version.split('.');
+    
+    for (var i = 0; i < requiredVersionArray.length; i++) {
+      if (+supportedVersionArray[i] > +requiredVersionArray[i]) {
+        return true;
+      }
+      if (+supportedVersionArray[i] < +requiredVersionArray[i]) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+
+
+  ReactSWF.utils = {
+    getFPVersion: getFPVersion,
+    isFPVersionSupported: isFPVersionSupported
+  };
+  
+  
+  return ReactSWF;
   
 }));
