@@ -22,8 +22,7 @@
 'use strict';
 
 
-var React = require('react');
-
+var cachedFPVersion;
 
 var encodeFlashKeyValueRegex = /[\r%&+]/g;
 var encodeFlashKeyValueLookup = {
@@ -75,6 +74,9 @@ var ReactSWF = React.createClass({
       // flash.external.ExternalInterface.addCallback requires a unique id
       id: nextUniqueObjectSwfId++
     };
+  },
+  shouldComponentUpdate: function(nextProps) {
+    return this.props.src !== this.props.nextProps;
   },
   componentWillUnmount: function() {
     // IE8: leaks memory if all ExternalInterface-callbacks have not been
@@ -147,6 +149,76 @@ var ReactSWF = React.createClass({
     );
   }
 });
+
+
+/**
+ * Detect installed Flash Player version. Result is cached.
+ *
+ * @return {?string} 'X.Y.Z'-version, or null.
+ */
+function getFPVersion() {
+  if (cachedFPVersion === undefined) {
+    cachedFPVersion = null;
+    
+    if (navigator.plugins) {
+      var plugin = navigator.plugins['Shockwave Flash'];
+      if (plugin) {
+        var mimeType = navigator.mimeTypes['application/x-shockwave-flash'];
+        if (mimeType && mimeType.enabledPlugin) {
+          var matches = plugin.description
+            .match(/^Shockwave Flash (\d+)(?:\.(\d+))?(?: r(\d+))?/);
+          
+          cachedFPVersion =
+            matches[1] + '.' + (matches[2] || 0) + '.' + (matches[3] || 0);
+        }
+      }
+    }
+    if (window.ActiveXObject) {
+      try {
+        var axObject = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+        if (axObject) {
+          cachedFPVersion = axObject.GetVariable('$version')
+            .match(/^WIN (\d+),(\d+),(\d+)/).slice(1).join('.');
+        }
+      }
+      catch (e) {}
+    }
+  }
+  
+  return cachedFPVersion;
+}
+
+/**
+ * Detect if installed Flash Player version meets requirements.
+ *
+ * @param {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
+ * @return {boolean} True if version is supported.
+ */
+function isFPVersionSupported(version) {
+  var supportedVersion = getFPVersion();
+  
+  if (supportedVersion === null) {
+    return false;
+  }
+  
+  var supportedVersionArray = supportedVersion.split('.');
+  var requiredVersionArray = version.split('.');
+  
+  for (var i = 0; i < requiredVersionArray.length; i++) {
+    if (+supportedVersionArray[i] > +requiredVersionArray[i]) {
+      return true;
+    }
+    if (+supportedVersionArray[i] < +requiredVersionArray[i]) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+
+ReactSWF.getFPVersion = getFPVersion;
+ReactSWF.isFPVersionSupported = isFPVersionSupported;
 
 
 modules.exports = ReactSWF;

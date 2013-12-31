@@ -40,6 +40,8 @@
   }
 }(this, function (React) {
 
+  var cachedFPVersion;
+
   var encodeFlashKeyValueRegex = /[\r%&+]/g;
   var encodeFlashKeyValueLookup = {
     '\r': '%0D', '%': '%25', '&': '%26', '+': '%2B', '=': '%3D'
@@ -90,6 +92,9 @@
         // flash.external.ExternalInterface.addCallback requires a unique id
         id: nextUniqueObjectSwfId++
       };
+    },
+    shouldComponentUpdate: function(nextProps) {
+      return this.props.src !== this.props.nextProps;
     },
     componentWillUnmount: function() {
       // IE8: leaks memory if all ExternalInterface-callbacks have not been
@@ -164,7 +169,7 @@
   });
 
 
-  var cachedFPVersion;
+  
 
   /**
    * Detect installed Flash Player version. Result is cached.
@@ -232,10 +237,8 @@
   }
 
 
-  ReactSWF.utils = {
-    getFPVersion: getFPVersion,
-    isFPVersionSupported: isFPVersionSupported
-  };
+  ReactSWF.getFPVersion = getFPVersion;
+  ReactSWF.isFPVersionSupported = isFPVersionSupported;
   
   
   return ReactSWF;
