@@ -47,17 +47,17 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 
 ## Instructions
 
-#### Browser bundle (standalone)
+#### Browser bundle
 
 You are using `react-swf.min.js`
 
-Simply include it with `<script src="react-swf.min.js"></script>`, it will be available through the global `ReactSWF`.
+Simply include it with `<script src="react-swf.min.js"></script>`, globally available as `ReactSWF`.
 
-#### Browser bundle (CommonJS/AMD)
+#### CommonJS/AMD module loader
 
-Simply include it with `<script src="react-swf.min.js"></script>`, require it with `var ReactSWF = require('react-swf')`.
+Simply require it with `var ReactSWF = require('react-swf')`.
 
-#### Node, NPM-package
+#### NPM-package
 
 Simply install it with `npm install react-swf`, require it with `var ReactSWF = require('react-swf')`.
 
