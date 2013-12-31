@@ -41,7 +41,7 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
   // success, go ahead and render the ReactSWF-component
 } else {
   // not supported, use fallback or direct to Flash Player installer
-  console.log('Flash Player ' + ReactSWF.getFPVersion()) + ' is not supported');
+  console.log('Flash Player ' + ReactSWF.getFPVersion() + ' is not supported');
 }
 ```
 
