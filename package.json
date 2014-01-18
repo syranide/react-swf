@@ -1,7 +1,7 @@
 {
   "name": "react-swf",
   "title": "ReactSWF",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "author": "Andreas Svensson <andreas@syranide.com>",
   "description": "Shockwave Flash Player component for React",
   "homepage": "https://github.com/syranide/react-swf",
@@ -37,5 +37,5 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "main": "src/ReactSWF.js"
+  "main": "src/react-swf.js"
 }

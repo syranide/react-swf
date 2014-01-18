@@ -1,4 +1,4 @@
-# ReactSWF 0.7.0
+# ReactSWF 0.8.0
 
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 
@@ -6,7 +6,7 @@ Easy installation with `react-swf.min.js`, `npm install react-swf` or `bower ins
 
 * Browser bundle has optional CommonJS/AMD module loader support
 * Only ~1KB gzipped
-* An object can be passed to `flashVars` and is automatically encoded
+* An object can be passed to `flashVars` to be automatically encoded
 * Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
 
 ## Examples
@@ -15,7 +15,7 @@ Easy installation with `react-swf.min.js`, `npm install react-swf` or `bower ins
 
 ```
 <ReactSWF
-  src="example.swf" 
+  src="example.swf"
   width="300"
   height="200"
   wmode="transparent"

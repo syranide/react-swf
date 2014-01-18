@@ -2,7 +2,7 @@
 
 module.exports = {
   debug: {
-    src: 'src/ReactSWF.js',
+    src: 'src/react-swf.js',
     dest: 'build/react-swf.js',
   }
 };
