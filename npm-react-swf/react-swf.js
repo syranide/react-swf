@@ -76,7 +76,7 @@ function encodeFlashVarsObject(obj) {
   var list = [];
 
   for (var key in obj) {
-    if (obj[key] !== null) {
+    if (obj[key] != null) {
       list.push(
         encodeFlashKeyValue(key) + '=' +
         encodeFlashKeyValue(obj[key])
@@ -85,14 +85,6 @@ function encodeFlashVarsObject(obj) {
   }
 
   return list.join('&');
-}
-
-function cleanupObjectIE8(node) {
-  for (var key in node) {
-    if (typeof node[key] === 'function') {
-      node[key] = null;
-    }
-  }
 }
 
 /**
@@ -149,10 +141,13 @@ function isFPVersionSupported(version) {
   var requiredVersionArray = version.split('.');
 
   for (var i = 0; i < requiredVersionArray.length; i++) {
-    if (+supportedVersionArray[i] > +requiredVersionArray[i]) {
+    var supportedVersionNumber = +supportedVersionArray[i];
+    var requiredVersionNumber = +requiredVersionArray[i];
+
+    if (supportedVersionNumber > requiredVersionNumber) {
       return true;
     }
-    if (+supportedVersionArray[i] < +requiredVersionArray[i]) {
+    if (supportedVersionNumber < requiredVersionNumber) {
       return false;
     }
   }
@@ -165,12 +160,15 @@ var ReactSWF = React.createClass({
     getFPVersion: getFPVersion,
     isFPVersionSupported: isFPVersionSupported
   },
+
   getInitialState: function() {
     return {};
   },
+
   shouldComponentUpdate: function(nextProps) {
     return !shallowEqual(this.props, nextProps);
   },
+
   componentWillMount: function() {
     var props = this.props;
     var params = {};
@@ -197,15 +195,21 @@ var ReactSWF = React.createClass({
       params: params
     });
   },
+
   componentWillUnmount: function() {
     // IE8: leaks memory if all ExternalInterface-callbacks have not been
     // removed. Only IE implements readyState, hasOwnProperty does not exist
     // for DOM nodes in IE8, but does in IE9+.
-    if (document.readyState !== undefined &&
-        document.hasOwnProperty === undefined) {
-      cleanupObjectIE8(this.getDOMNode());
+    if (document.readyState && !document.hasOwnProperty) {
+      var node = this.getDOMNode();
+      for (var key in node) {
+        if (typeof node[key] === 'function') {
+          node[key] = null;
+        }
+      }
     }
   },
+
   render: function() {
     var state = this.state;
     var params = [];

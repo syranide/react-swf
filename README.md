@@ -1,4 +1,4 @@
-# ReactSWF 0.8.0
+# ReactSWF 0.8.1
 
 Shockwave Flash Player component for [React](https://github.com/facebook/react)
 

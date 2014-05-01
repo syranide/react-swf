@@ -40,13 +40,15 @@
   }
 }(this, function (React) {
 
-  function shallowEqual(objA, objB) {
+  function deepEqual(objA, objB) {
     if (objA !== objB) {
       var key;
       for (key in objA) {
         if (objA.hasOwnProperty(key) &&
             (!objB.hasOwnProperty(key) || objA[key] !== objB[key])) {
-          return false;
+          if (!deepEqual(objA[key], objB[key])) {
+            return false;
+          }
         }
       }
       for (key in objB) {
@@ -94,7 +96,7 @@
     var list = [];
 
     for (var key in obj) {
-      if (obj[key] !== null) {
+      if (obj[key] != null) {
         list.push(
           encodeFlashKeyValue(key) + '=' +
           encodeFlashKeyValue(obj[key])
@@ -103,14 +105,6 @@
     }
 
     return list.join('&');
-  }
-
-  function cleanupObjectIE8(node) {
-    for (var key in node) {
-      if (typeof node[key] === 'function') {
-        node[key] = null;
-      }
-    }
   }
 
   /**
@@ -167,10 +161,13 @@
     var requiredVersionArray = version.split('.');
 
     for (var i = 0; i < requiredVersionArray.length; i++) {
-      if (+supportedVersionArray[i] > +requiredVersionArray[i]) {
+      var supportedVersionNumber = +supportedVersionArray[i];
+      var requiredVersionNumber = +requiredVersionArray[i];
+
+      if (supportedVersionNumber > requiredVersionNumber) {
         return true;
       }
-      if (+supportedVersionArray[i] < +requiredVersionArray[i]) {
+      if (supportedVersionNumber < requiredVersionNumber) {
         return false;
       }
     }
@@ -183,12 +180,15 @@
       getFPVersion: getFPVersion,
       isFPVersionSupported: isFPVersionSupported
     },
+
     getInitialState: function() {
       return {};
     },
+
     shouldComponentUpdate: function(nextProps) {
-      return !shallowEqual(this.props, nextProps);
+      return !deepEqual(this.props, nextProps);
     },
+
     componentWillMount: function() {
       var props = this.props;
       var params = {};
@@ -215,36 +215,42 @@
         params: params
       });
     },
+
     componentWillUnmount: function() {
       // IE8: leaks memory if all ExternalInterface-callbacks have not been
       // removed. Only IE implements readyState, hasOwnProperty does not exist
       // for DOM nodes in IE8, but does in IE9+.
-      if (document.readyState !== undefined &&
-          document.hasOwnProperty === undefined) {
-        cleanupObjectIE8(this.getDOMNode());
+      if (document.readyState && !document.hasOwnProperty) {
+        var node = this.getDOMNode();
+        for (var key in node) {
+          if (typeof node[key] === 'function') {
+            node[key] = null;
+          }
+        }
       }
     },
+
     render: function() {
-      var state = this.state;
       var params = [];
 
-      for (var key in state.params) {
+      for (var key in this.state.params) {
         params.push(
           React.DOM.param({
             key: key,
             name: key,
-            value: state.params[key]
+            value: this.state.params[key]
           })
         );
       }
 
+      // can use width/height attribute instead?
       // flash.external.ExternalInterface.addCallback requires a unique id
       return this.transferPropsTo(
         React.DOM.object({
           type: 'application/x-shockwave-flash',
-          id: '__react_swf_' + state.id,
+          id: '__react_swf_' + this.state.id,
           //key: this.props.src,
-          data: state.src
+          data: this.state.src
         }, params)
       );
     }
