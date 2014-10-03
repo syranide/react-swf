@@ -1,124 +1,127 @@
-# ReactSWF 0.8.1
+# react-swf
 
-Shockwave Flash Player component for [React](https://github.com/facebook/react)
-
-Easy installation with `react-swf.min.js`, `npm install react-swf` or `bower install --save react-swf`.
-
-* Browser bundle has optional CommonJS/AMD module loader support
-* Only ~1KB gzipped
-* An object can be passed to `flashVars` to be automatically encoded
-* Solves IE8 memory leaks when using `flash.external.ExternalInterface.addCallback`
-
-## Examples
-
-#### React JSX example
+Shockwave Flash Player component for React. Only 1.2kb.
 
 ```
 <ReactSWF
   src="example.swf"
+  id="guid_001"
   width="300"
   height="200"
   wmode="transparent"
-  flashVars={{var1: 'A', var2: 1}} />
+  flashVars={{foo: 'A', bar: 1}}
+/>
 ```
-
-#### JavaScript example
-
-```
-ReactSWF({
-  src: 'example.swf',
-  width: 300,
-  height: 200,
-  wmode: 'transparent',
-  flashVars: {var1: 'A', var2: 1}
-})
-```
-
-#### Flash Player detection
-
-```
+```js
 if (ReactSWF.isFPVersionSupported('10.0')) {
-  // success, go ahead and render the ReactSWF-component
-} else {
-  // not supported, use fallback or direct to Flash Player installer
-  console.log('Flash Player ' + ReactSWF.getFPVersion() + ' is not supported');
+  console.log('Flash Player ' + ReactSWF.getFPVersion() + ' is supported');
 }
 ```
 
-## Instructions
+## Installation
 
-#### Browser bundle
+#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.9.0/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.9.0/react-swf.js)
 
-You are using `react-swf.min.js`
+```
+<!-- Global module -->
+<script src="react-swf.js"></script>
+```
+```
+// AMD module
+define(['react-swf'], function(ReactSWF) { });
+```
+```
+// CommonJS module
+var ReactSWF = require('react-swf');
+```
 
-Simply include it with `<script src="react-swf.min.js"></script>`, globally available as `ReactSWF`.
+#### Package managers
 
-#### CommonJS/AMD module loader
+```
+# CommonJS module
+npm install --save react-swf
+```
+```
+# Universal module
+bower install --save react-swf
+```
 
-Simply require it with `var ReactSWF = require('react-swf')`.
+## Special properties
 
-#### NPM-package
-
-Simply install it with `npm install react-swf`, require it with `var ReactSWF = require('react-swf')`.
-
-#### Bower-package
-
-Simply install it with `bower install --save react-swf`, use your preferred method above.
-
-## Documentation
-
-#### ReactSWF attributes
-
-Detailed explanation of each attribute is found on [Flash OBJECT and EMBED tag attributes](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
+Detailed explanation of most properties found at [[Flash OBJECT and EMBED tag attributes]](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
 
 ```
 src {string} [required]
 width {number}
 height {number}
-
-wmode {enum}
-flashVars {object|string}
-
+```
+```
+flashVars {object|string} - {key: {string}}, "key=value&..."
+```
+```
+allowFullScreen {boolean} - true, false*
+allowNetworking {enum} - all*, internal, none
+allowScriptAccess {enum} - always, sameDomain*, never
+```
+```
+align {enum} - l, t, r
 base {string}
-menu {boolean}
-play {boolean}
-loop {boolean}
-quality {enum}
-scale {enum}
-align {enum}
-salign {enum}
-bgColor {color}
-fullScreenAspectRatio {enum}
-
-allowFullScreen {boolean}
-allowScriptAccess {boolean}
+bgcolor {string} - #RRGGBB
+fullScreenAspectRatio {enum} - portrait, landscape
+loop {boolean} - true*, false
+menu {boolean} - true*, false
+play {boolean} - true*, false
+quality {enum} - low, autolow, autohigh, medium, high, best
+salign {enum} - l, t, r, tl, tr
+scale {enum} - default*, noborder, exactfit, noscale
+seamlessTabbing {boolean} - true*, false
+wmode {enum} - window*, direct, opaque, transparent, gpu
 ```
 
-##### wmode = transparent
+## ExternalInterface
 
-Is useful for enabling transparent Flash-content to blend seamlessly into a page, beware that there's a significant Flash-performance penalty associated with it so choose wisely.
+#### ExternalInterface.addCallback
 
-##### flashVars = {object}
+If the movie uses `ExternalInterface.addCallback` you must provide a globally unique DOM `id` to `ReactSWF` for IE8-10. This is not automatic as there exists no isolated mechanism that can guarantee the creation of IDs that are identical on both server and client, yet unique.
 
-Allows sending a key-value object during *creation* that becomes available in ActionScript through `value = loaderInfo.parameters[key]`, roughly 64KB of serialized data is supported by Flash Player. Optionally, you can provide your own *encoded* string to be sent as-is to Flash Player.
-
-##### allowScriptAccess = false
-
-Prevents untrusted Flash-content from accessing sensitive information through browser script execution through `flash.external.ExternalInterface.call`.
-
-====
-
-#### Utility functions
-
-These functions are available statically through `ReactSWF.*`.
-
+```html
+<ReactSWF id="guid_001" ... />
 ```
-getFPVersion()
-  Detect installed Flash Player version. Result is cached.
-  {?string} return 'X.Y.Z'-version, or null.
 
-isFPVersionSupported(version)
-  Detect if installed Flash Player version meets requirements.
-  {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
-  {boolean} return True if version is supported.
+#### ExternalInterface.call
+
+If the movie uses `ExternalInterface.call` use one of the following ActionScript 3 functions to safeguard against run-time errors and string corruption from unsafe chars. Encoded strings are automatically decoded by the JavaScript run-time.
+
+```as3
+var matchUnsafeSlashChar:RegExp = /\\/g;
+
+// Encode unsafe ASCII-chars for ExternalInterface.call.
+// \0 is not encoded and may throw a JavaScript error or corrupt the string.
+function encodeASCIIStringForJS(value:String):String {
+  return value.replace(matchUnsafeSlashChar, '////');
+}
+
+var matchAnyUnsafeChars:RegExp = new RegExp(
+  // Backslash (\) and NULL-char (\0)
+  '[\\\\\\0' +
+  // Line separator (0x2028), paragraph separator (0x2029)
+  String.fromCharCode(0x2028) + String.fromCharCode(0x2029) +
+  // Non-characters (0xFDD0 - 0xFDEF)
+  String.fromCharCode(0xfdd0) + '-' + String.fromCharCode(0xfdef) +
+  // Non-characters (0xFFFE + 0xFFFF)
+  String.fromCharCode(0xfffe) + String.fromCharCode(0xffff) + ']',
+  'g'
+);
+
+// Encode unsafe Unicode-chars for ExternalInterface.call.
+// 0xD800-0xDFFF are considered invalid and may be replaced with 0xFFFD.
+function encodeUnicodeStringForJS(value:String):String {
+  return value.replace(matchAnyUnsafeChars, function():String {
+    var charCode:Number = arguments[0].charCodeAt(0);
+    return (
+      charCode === 92 ? '\\\\' :
+      charCode === 0 ? '\\0' : '\\u' + charCode.toString(16)
+    );
+  });
+}
 ```

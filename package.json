@@ -1,43 +1,25 @@
 {
   "name": "react-swf",
-  "title": "ReactSWF",
-  "version": "0.8.2",
-  "author": "Andreas Svensson <andreas@syranide.com>",
+  "version": "0.9.0",
+  "license": "MIT",
   "description": "Shockwave Flash Player component for React",
+  "author": "Andreas Svensson <andreas@syranide.com>",
   "homepage": "https://github.com/syranide/react-swf",
   "bugs": "https://github.com/syranide/react-swf/issues",
-  "license": "MIT",
+  "main": "npm-react-swf/react-swf.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/syranide/react-swf"
   },
   "keywords": [
     "react",
-    "swf",
     "react-component",
+    "component",
+    "swf",
     "shockwave",
     "flash",
     "player",
-    "component",
     "object",
     "embed"
-  ],
-  "dependencies": {
-  },
-  "peerDependencies": {
-    "react": ">=0.8"
-  },
-  "devDependencies": {
-    "grunt": "",
-    "grunt-compare-size": "",
-    "grunt-contrib-uglify": "",
-    "grunt-contrib-jshint": "",
-    "grunt-contrib-clean": "",
-    "grunt-contrib-copy": "",
-    "gzip-js": ""
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "main": "src/react-swf.js"
+  ]
 }

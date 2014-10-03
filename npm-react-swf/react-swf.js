@@ -1,85 +1,63 @@
-/**
- * Copyright (c) 2014 Andreas Svensson
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+/*! react-swf v0.9.0 | @syranide | MIT license */
 
 'use strict';
 
+var mimeTypeForFP = 'application/x-shockwave-flash';
 
-function shallowEqual(objA, objB) {
-  if (objA !== objB) {
-    var key;
-    for (key in objA) {
-      if (objA.hasOwnProperty(key) &&
-          (!objB.hasOwnProperty(key) || objA[key] !== objB[key])) {
-        return false;
-      }
-    }
-    for (key in objB) {
-      if (objB.hasOwnProperty(key) && !objA.hasOwnProperty(key)) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
+var paramsSupportedByFP = {
+  'flashVars': 0, // {key: {string}} or "key=value&..."
 
+  'allowFullScreen': 1, // true, false*
+  'allowNetworking': 0, // all*, internal, none
+  'allowScriptAccess': 0, // always, sameDomain, never
 
-var cachedFPVersion;
-
-var encodeFlashKeyValueRegex = /[\r%&+]/g;
-var encodeFlashKeyValueLookup = {
-  '\r': '%0D', '%': '%25', '&': '%26', '+': '%2B'
+  'align': 0, // l, t, r
+  'base': 0, // "[url]"
+  'bgcolor': 0, // #RRGGBB
+  'fullScreenAspectRatio': 0, // portrait, landscape
+  'loop': 1, // true*, false
+  'menu': 1, // true*, false
+  'play': 1, // true*, false
+  'quality': 0, // low, autolow, autohigh, medium, high, best
+  'salign': 0, // l, t, r, tl, tr
+  'scale': 0, // default*, noborder, exactfit, noscale
+  'seamlessTabbing': 1, // true*, false
+  'wmode': 0 // window*, direct, opaque, transparent, gpu
 };
 
-var objectParamNames = {
-  'play': true, 'loop': true, 'menu': true, 'quality': true, 'scale': true,
-  'align': true, 'salign': true, 'bgColor': true, 'wmode': true, 'base': true,
-  'allowScriptAccess': true, 'allowFullScreen': true,
-  'fullScreenAspectRatio': true
+var encodeStringRegexForFP = /[\r%&+=]/g;
+
+var encodeStringMapForFP = {
+  '\r': '%0D',
+  '%': '%25',
+  '&': '%26',
+  '+': '%2B',
+  '=': '%3D'
 };
 
-var nextUniqueSWFID = 0;
+var installedFPVersion;
 
-
-function encodeFlashKeyValueEncoder(match) {
-  return encodeFlashKeyValueLookup[match];
+function encodeStringCallbackForFP(match) {
+  return encodeStringMapForFP[match];
 }
 
-function encodeFlashKeyValue(string) {
-  // Encode \r or it may be normalized into \n
+function encodeStringForFP(string) {
   return ('' + string).replace(
-    encodeFlashKeyValueRegex,
-    encodeFlashKeyValueEncoder
+    encodeStringRegexForFP,
+    encodeStringCallbackForFP
   );
 }
 
-function encodeFlashVarsObject(obj) {
-  // Pushing encoded key-values to an array instead of immediately
-  // concatenating is faster and scales better with large values.
+function encodeObjectForFP(obj) {
+  // Push to array, faster and scales better.
   var list = [];
+  var i = 0;
 
   for (var key in obj) {
-    if (obj[key] != null) {
-      list.push(
-        encodeFlashKeyValue(key) + '=' +
-        encodeFlashKeyValue(obj[key])
+    if (obj[key] != null && obj.hasOwnProperty(key)) {
+      list[i++] = (
+        encodeStringForFP(key) + '=' +
+        encodeStringForFP(obj[key])
       );
     }
   }
@@ -88,67 +66,74 @@ function encodeFlashVarsObject(obj) {
 }
 
 /**
- * Detect installed Flash Player version. Result is cached.
+ * Detect and return installed Flash Player version. Result is cached.
+ * Caution: Must not be called in a non-browser environment.
  *
- * @return {?string} 'X.Y.Z'-version, or null.
+ * @return {?string} 'X.Y.Z'-version or null.
  */
 function getFPVersion() {
-  if (cachedFPVersion === undefined) {
-    cachedFPVersion = null;
+  if (installedFPVersion === undefined) {
+    installedFPVersion = null;
 
-    if (navigator.plugins) {
-      var plugin = navigator.plugins['Shockwave Flash'];
-      if (plugin) {
-        var mimeType = navigator.mimeTypes['application/x-shockwave-flash'];
-        if (mimeType && mimeType.enabledPlugin) {
-          var matches = plugin.description
-            .match(/^Shockwave Flash (\d+)(?:\.(\d+))?(?: r(\d+))?/);
+    var nav = navigator;
+    var navPluginForFP = nav.plugins['Shockwave Flash'];
+    var navMimeTypeForFP = nav.mimeTypes[mimeTypeForFP];
 
-          cachedFPVersion =
-            matches[1] + '.' + (matches[2] || 0) + '.' + (matches[3] || 0);
-        }
-      }
-    }
-    if (window.ActiveXObject) {
+    if (navPluginForFP && navMimeTypeForFP &&
+        navMimeTypeForFP.enabledPlugin) {
       try {
-        var axObject = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
-        if (axObject) {
-          cachedFPVersion = axObject.GetVariable('$version')
-            .match(/^WIN (\d+),(\d+),(\d+)/).slice(1).join('.');
-        }
-      }
-      catch (e) {}
+        return installedFPVersion = (
+          navPluginForFP
+            .description
+            .match(/(\d+)\.(\d+) r(\d+)/)
+            .slice(1)
+            .join('.')
+        );
+      } catch (e) {}
+    }
+
+    // ActiveXObject-fallback for IE8-10
+    var ActiveXObject = window.ActiveXObject;
+
+    if (ActiveXObject) {
+      try {
+        return installedFPVersion = (
+          new ActiveXObject('ShockwaveFlash.ShockwaveFlash')
+            .GetVariable('$version')
+            .match(/(\d+),(\d+),(\d+)/)
+            .slice(1)
+            .join('.')
+        );
+      } catch (e) {}
     }
   }
 
-  return cachedFPVersion;
+  return installedFPVersion;
 }
 
 /**
- * Detect if installed Flash Player version meets requirements.
+ * Detect if installed Flash Player meets version requirement.
+ * Caution: Must not be called in a non-browser environment.
  *
- * @param {string} version 'X.Y.Z' or 'X.Y' or 'X'-version.
- * @return {boolean} True if version is supported.
+ * @param {string} versionString 'X.Y.Z', 'X.Y' or 'X'.
+ * @return {boolean} True if supported.
  */
-function isFPVersionSupported(version) {
-  var supportedVersion = getFPVersion();
+function isFPVersionSupported(versionString) {
+  var installedVersionString = getFPVersion();
 
-  if (supportedVersion === null) {
+  if (installedVersionString == null) {
     return false;
   }
 
-  var supportedVersionArray = supportedVersion.split('.');
-  var requiredVersionArray = version.split('.');
+  var installedVersionFields = installedVersionString.split('.');
+  var requiredVersionFields = versionString.split('.');
 
-  for (var i = 0; i < requiredVersionArray.length; i++) {
-    var supportedVersionNumber = +supportedVersionArray[i];
-    var requiredVersionNumber = +requiredVersionArray[i];
+  for (var i = 0; i < 3; i++) {
+    var installedVersionNumber = +installedVersionFields[i];
+    var requiredVersionNumber = +(requiredVersionFields[i] || 0);
 
-    if (supportedVersionNumber > requiredVersionNumber) {
-      return true;
-    }
-    if (supportedVersionNumber < requiredVersionNumber) {
-      return false;
+    if (installedVersionNumber !== requiredVersionNumber) {
+      return installedVersionNumber > requiredVersionNumber;
     }
   }
 
@@ -162,46 +147,76 @@ var ReactSWF = React.createClass({
   },
 
   getInitialState: function() {
-    return {};
+    return {
+      src: this.props.src,
+      params: null,
+    };
   },
 
   shouldComponentUpdate: function(nextProps) {
-    return !shallowEqual(this.props, nextProps);
+    var prevProps = this.props;
+
+    for (var key in prevProps) {
+      if (prevProps.hasOwnProperty(key) &&
+          (!nextProps.hasOwnProperty(key) ||
+            prevProps[key] !== nextProps[key]) &&
+          !(key in paramsSupportedByFP)) {
+        return true;
+      }
+    }
+
+    for (var key in nextProps) {
+      if (nextProps.hasOwnProperty(key) &&
+          !prevProps.hasOwnProperty(key) &&
+          !(key in paramsSupportedByFP)) {
+        return true;
+      }
+    }
+
+    return false;
   },
 
   componentWillMount: function() {
     var props = this.props;
-    var params = {};
 
-    // IE8 requires the use of the movie param to function
-    params['movie'] = props.src;
+    var params = {
+      // IE8 requires the 'movie'-param.
+      'movie': this.state.src
+    };
 
-    for (var key in props) {
-      if (objectParamNames[key]) {
-        params[key] = props[key];
+    for (var key in paramsSupportedByFP) {
+      var value = props[key];
+      if (value != null && props.hasOwnProperty(key) && key !== 'flashVars') {
+        // Force boolean parameters to be either "true" or false "false".
+        params[key.toLowerCase()] = (
+          paramsSupportedByFP[key] ?
+            (value ? 'true' : 'false') :
+            '' + value
+        );
       }
     }
 
     var flashVars = props.flashVars;
+
     if (flashVars != null) {
-      params['flashvars'] = typeof flashVars === 'string' ?
-        flashVars :
-        encodeFlashVarsObject(flashVars);
+      params['flashvars'] = (
+        typeof flashVars === 'object' ?
+          encodeObjectForFP(flashVars) :
+          flashVars
+      );
     }
 
     this.setState({
-      id: nextUniqueSWFID++,
-      src: props.src,
       params: params
     });
   },
 
   componentWillUnmount: function() {
-    // IE8: leaks memory if all ExternalInterface-callbacks have not been
-    // removed. Only IE implements readyState, hasOwnProperty does not exist
-    // for DOM nodes in IE8, but does in IE9+.
-    if (document.readyState && !document.hasOwnProperty) {
+    // IE8 leaks nodes if AS3 ExternalInterface.addCallback-functions remain.
+    if (document.documentMode <= 8) {
       var node = this.getDOMNode();
+
+      // Node-methods are not enumerable in IE8, but properties are.
       for (var key in node) {
         if (typeof node[key] === 'function') {
           node[key] = null;
@@ -211,11 +226,34 @@ var ReactSWF = React.createClass({
   },
 
   render: function() {
+    var props = this.props;
     var state = this.state;
-    var params = [];
+
+    // AS3 ExternalInterface.addCallback requires a unique node ID. There is
+    // however no isolated way to play nice with server-rendering, so we must
+    // leave it up to the user.
+
+    var objectProps = {
+      type: mimeTypeForFP,
+      // Not supported until next React release.
+      classID: 'clsid:d27cdb6e-ae6d-11cf-96b8-444553540000',
+      data: state.src,
+
+      // Temporary until React 0.12 release.
+      ref: null,
+      key: null
+    };
+
+    for (var key in props) {
+      if (!(key in paramsSupportedByFP || key in objectProps)) {
+        objectProps[key] = props[key];
+      }
+    }
+
+    var objectArguments = [objectProps];
 
     for (var key in state.params) {
-      params.push(
+      objectArguments.push(
         React.DOM.param({
           key: key,
           name: key,
@@ -224,17 +262,12 @@ var ReactSWF = React.createClass({
       );
     }
 
-    // flash.external.ExternalInterface.addCallback requires a unique id
-    return this.transferPropsTo(
-      React.DOM.object({
-        type: 'application/x-shockwave-flash',
-        id: '__react_swf_' + state.id,
-        //key: this.props.src,
-        data: state.src
-      }, params)
-    );
+    if (props.children) {
+      objectArguments.push(props.children);
+    }
+
+    return React.DOM.object.apply(null, objectArguments);
   }
 });
 
-
-modules.exports = ReactSWF;
+module.exports = ReactSWF;
