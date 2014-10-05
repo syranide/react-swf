@@ -84,13 +84,13 @@ wmode {enum} - window*, direct, opaque, transparent, gpu
 
 If the movie uses `ExternalInterface.addCallback` you must provide a globally unique DOM `id` to `ReactSWF` for IE8-10. This is not automatic as there exists no isolated mechanism that can guarantee the creation of IDs that are identical on both server and client, yet unique.
 
-```html
+```
 <ReactSWF id="guid_001" ... />
 ```
 
 #### ExternalInterface.call
 
-If the movie uses `ExternalInterface.call` use one of the following ActionScript 3 functions to safeguard against run-time errors and string corruption from unsafe chars. Encoded strings are automatically decoded by the JavaScript run-time.
+If the movie uses `ExternalInterface.call` it should use one of the following ActionScript 3 functions to safeguard against run-time errors and string corruption from unsafe chars. Encoded strings are automatically decoded by the JavaScript run-time.
 
 ```as3
 var matchUnsafeSlashChar:RegExp = /\\/g;
@@ -100,7 +100,8 @@ var matchUnsafeSlashChar:RegExp = /\\/g;
 function encodeASCIIStringForJS(value:String):String {
   return value.replace(matchUnsafeSlashChar, '////');
 }
-
+```
+```as3
 var matchAnyUnsafeChars:RegExp = new RegExp(
   // Backslash (\) and NULL-char (\0)
   '[\\\\\\0' +
