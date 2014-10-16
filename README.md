@@ -20,7 +20,7 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 
 ## Installation
 
-#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.9.0/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.9.0/react-swf.js)
+#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.9.1/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.9.1/react-swf.js)
 
 ```
 <!-- Global module -->

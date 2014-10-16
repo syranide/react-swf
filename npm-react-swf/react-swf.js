@@ -1,4 +1,4 @@
-/*! react-swf v0.9.0 | @syranide | MIT license */
+/*! react-swf v0.9.1 | @syranide | MIT license */
 
 'use strict';
 
@@ -12,7 +12,7 @@ var paramsSupportedByFP = {
   'allowScriptAccess': 0, // always, sameDomain, never
 
   'align': 0, // l, t, r
-  'base': 0, // "[url]"
+  'base': 0, // url
   'bgcolor': 0, // #RRGGBB
   'fullScreenAspectRatio': 0, // portrait, landscape
   'loop': 1, // true*, false
@@ -213,7 +213,7 @@ var ReactSWF = React.createClass({
 
   componentWillUnmount: function() {
     // IE8 leaks nodes if AS3 ExternalInterface.addCallback-functions remain.
-    if (document.documentMode <= 8) {
+    if (document.documentMode < 9) {
       var node = this.getDOMNode();
 
       // Node-methods are not enumerable in IE8, but properties are.
@@ -235,13 +235,7 @@ var ReactSWF = React.createClass({
 
     var objectProps = {
       type: mimeTypeForFP,
-      // Not supported until next React release.
-      classID: 'clsid:d27cdb6e-ae6d-11cf-96b8-444553540000',
-      data: state.src,
-
-      // Temporary until React 0.12 release.
-      ref: null,
-      key: null
+      data: state.src
     };
 
     for (var key in props) {
