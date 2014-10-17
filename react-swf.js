@@ -1,14 +1,14 @@
-/*! react-swf v0.9.1 | @syranide | MIT license */
+/*! react-swf v0.9.2 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define([], factory);
+    define(['react'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory();
+    module.exports = factory(require('react'));
   } else {
-    root.ReactSWF = factory();
+    root.ReactSWF = factory(root.React);
   }
-}(this, function() {
+}(this, function(React) {
   'use strict';
 
   var mimeTypeForFP = 'application/x-shockwave-flash';
