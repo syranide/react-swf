@@ -12,7 +12,7 @@
     "url": "https://github.com/syranide/react-swf"
   },
   "peerDependencies": {
-    "react": "^0.12",
+    "react": "^0.12"
   },
   "keywords": [
     "react",

@@ -1,6 +1,6 @@
 {
   "name": "react-swf",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "license": "MIT",
   "description": "Shockwave Flash Player component for React",
   "author": "Andreas Svensson <andreas@syranide.com>",
@@ -12,7 +12,7 @@
     "url": "https://github.com/syranide/react-swf"
   },
   "peerDependencies": {
-    "react": "^0.12",
+    "react": "^0.12"
   },
   "keywords": [
     "react",

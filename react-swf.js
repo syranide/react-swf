@@ -1,4 +1,4 @@
-/*! react-swf v0.9.2 | @syranide | MIT license */
+/*! react-swf v0.9.3 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
