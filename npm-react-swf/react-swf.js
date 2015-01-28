@@ -1,4 +1,4 @@
-/*! react-swf v0.9.4 | @syranide | MIT license */
+/*! react-swf v0.9.5 | @syranide | MIT license */
 
 'use strict';
 
