@@ -2,6 +2,8 @@
 
 'use strict';
 
+var React = require('react');
+
 var mimeTypeForFP = 'application/x-shockwave-flash';
 
 var paramsSupportedByFP = {
