@@ -1,6 +1,6 @@
 # react-swf
 
-Shockwave Flash Player component for React. Only 1.2kb.
+Shockwave Flash Player component for React. Only 1.3kb.
 
 ```
 <ReactSWF
@@ -13,9 +13,15 @@ Shockwave Flash Player component for React. Only 1.2kb.
 />
 ```
 ```js
+// getFPVersion() returns 'X.Y.Z' or null when not supported.
+// isFPVersionSupported(string) supports 'X.Y.Z', 'X.Y' and 'X' version format.
 if (ReactSWF.isFPVersionSupported('10.0')) {
-  console.log('Flash Player ' + ReactSWF.getFPVersion() + ' is supported');
+  alert('Flash Player ' + ReactSWF.getFPVersion() + ' is supported');
 }
+```
+```js
+// ExternalInterface callbacks are simply invoked on the DOM node as usual.
+var returnValue = thisOrRef.getDOMNode().myEICallback(...);
 ```
 
 ## Special properties
