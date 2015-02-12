@@ -1,4 +1,4 @@
-/*! react-swf v0.9.7 | @syranide | MIT license */
+/*! react-swf v0.10.0 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -34,9 +34,10 @@
     'wmode': 0 // window*, direct, opaque, transparent, gpu
   };
 
-  var encodeStringRegexForFP = /[\r%&+=]/g;
 
-  var encodeStringMapForFP = {
+  var ENCODE_FLASH_VARS_REGEX = /[\r%&+=]/g;
+
+  var ENCODE_FLASH_VARS_LOOKUP = {
     '\r': '%0D',
     '%': '%25',
     '&': '%26',
@@ -44,35 +45,38 @@
     '=': '%3D'
   };
 
-  var installedFPVersion;
-
-  function encodeStringCallbackForFP(match) {
-    return encodeStringMapForFP[match];
+  function encodeFlashVarsStringReplacer(match) {
+    return ENCODE_FLASH_VARS_LOOKUP[match];
   }
 
-  function encodeStringForFP(string) {
+  function encodeFlashVarsString(string) {
     return ('' + string).replace(
-      encodeStringRegexForFP,
-      encodeStringCallbackForFP
+      ENCODE_FLASH_VARS_REGEX,
+      encodeFlashVarsStringReplacer
     );
   }
 
-  function encodeObjectForFP(obj) {
-    // Push to array, faster and scales better.
-    var list = [];
-    var i = 0;
+  function encodeFlashVarsObject(object) {
+    // Push to array; faster and scales better than string concat.
+    var output = [];
 
-    for (var key in obj) {
-      if (obj[key] != null && obj.hasOwnProperty(key)) {
-        list[i++] = (
-          encodeStringForFP(key) + '=' +
-          encodeStringForFP(obj[key])
-        );
+    for (var key in object) {
+      if (object.hasOwnProperty(key)) {
+        var value = object[key];
+
+        if (value != null) {
+          output.push(
+            encodeFlashVarsString(key) + '=' + encodeFlashVarsString(value)
+          );
+        }
       }
     }
 
-    return list.join('&');
+    return output.join('&');
   }
+
+
+  var installedFPVersion;
 
   /**
    * Detect and return installed Flash Player version. Result is cached.
@@ -88,8 +92,7 @@
       var navPluginForFP = nav.plugins['Shockwave Flash'];
       var navMimeTypeForFP = nav.mimeTypes[mimeTypeForFP];
 
-      if (navPluginForFP && navMimeTypeForFP &&
-          navMimeTypeForFP.enabledPlugin) {
+      if (navPluginForFP && navMimeTypeForFP && navMimeTypeForFP.enabledPlugin) {
         try {
           return installedFPVersion = (
             navPluginForFP
@@ -98,7 +101,8 @@
               .slice(1)
               .join('.')
           );
-        } catch (e) {}
+        } catch (e) {
+        }
       }
 
       // ActiveXObject-fallback for IE8-10
@@ -113,7 +117,8 @@
               .slice(1)
               .join('.')
           );
-        } catch (e) {}
+        } catch (e) {
+        }
       }
     }
 
@@ -125,7 +130,7 @@
    * Caution: Must not be called in a non-browser environment.
    *
    * @param {string} versionString 'X.Y.Z', 'X.Y' or 'X'.
-   * @return {boolean} True if supported.
+   * @return {boolean} true if supported.
    */
   function isFPVersionSupported(versionString) {
     var installedVersionString = getFPVersion();
@@ -149,6 +154,7 @@
     return true;
   }
 
+
   var ReactSWF = React.createClass({
     statics: {
       getFPVersion: getFPVersion,
@@ -156,9 +162,37 @@
     },
 
     getInitialState: function() {
+      var props = this.props;
+
+      // The only way to change Flash parameters or reload the movie is to update
+      // the key of the ReactSWF element. This unmounts the previous instance and
+      // reloads the movie. Store initial values to keep the DOM consistent.
+
+      var params = {
+        // IE8 requires the `movie` parameter.
+        'movie': props.src
+      };
+
+      for (var key in paramsSupportedByFP) {
+        if (props.hasOwnProperty(key)) {
+          var value = props[key];
+
+          if (value != null) {
+            if (key === 'flashVars' && typeof value === 'object') {
+              value = encodeFlashVarsObject(value);
+            } else if (paramsSupportedByFP[key]) {
+              // Force values to boolean parameters to be boolean.
+              value = !!value;
+            }
+
+            params[key.toLowerCase()] = '' + value;
+          }
+        }
+      }
+
       return {
-        src: this.props.src,
-        params: null,
+        src: props.src,
+        params: params
       };
     },
 
@@ -166,10 +200,11 @@
       var prevProps = this.props;
 
       for (var key in prevProps) {
+        // Ignore all Flash parameter props
         if (prevProps.hasOwnProperty(key) &&
             (!nextProps.hasOwnProperty(key) ||
               prevProps[key] !== nextProps[key]) &&
-            !(key in paramsSupportedByFP)) {
+            !paramsSupportedByFP.hasOwnProperty(key)) {
           return true;
         }
       }
@@ -177,7 +212,7 @@
       for (var key in nextProps) {
         if (nextProps.hasOwnProperty(key) &&
             !prevProps.hasOwnProperty(key) &&
-            !(key in paramsSupportedByFP)) {
+            !paramsSupportedByFP.hasOwnProperty(key)) {
           return true;
         }
       }
@@ -185,43 +220,8 @@
       return false;
     },
 
-    componentWillMount: function() {
-      var props = this.props;
-
-      var params = {
-        // IE8 requires the 'movie'-param.
-        'movie': this.state.src
-      };
-
-      for (var key in paramsSupportedByFP) {
-        var value = props[key];
-        if (value != null && props.hasOwnProperty(key) && key !== 'flashVars') {
-          // Force boolean parameters to be either "true" or false "false".
-          params[key.toLowerCase()] = (
-            paramsSupportedByFP[key] ?
-              (value ? 'true' : 'false') :
-              '' + value
-          );
-        }
-      }
-
-      var flashVars = props.flashVars;
-
-      if (flashVars != null) {
-        params['flashvars'] = (
-          typeof flashVars === 'object' ?
-            encodeObjectForFP(flashVars) :
-            flashVars
-        );
-      }
-
-      this.setState({
-        params: params
-      });
-    },
-
     componentWillUnmount: function() {
-      // IE8 leaks nodes if AS3 ExternalInterface.addCallback-functions remain.
+      // IE8 leaks nodes if AS3 `ExternalInterface.addCallback`-functions remain.
       if (document.documentMode < 9) {
         var node = this.getDOMNode();
 
@@ -238,25 +238,31 @@
       var props = this.props;
       var state = this.state;
 
-      // AS3 ExternalInterface.addCallback requires a unique node ID in IE8-10.
+      // AS3 `ExternalInterface.addCallback` requires a unique node ID in IE8-10.
       // There is however no isolated way to play nice with server-rendering, so
       // we must leave it up to the user.
 
       var objectProps = {
+        children: [],
         type: mimeTypeForFP,
-        data: state.src
+        data: state.src,
+        // Discard `props.src`
+        src: null
       };
 
       for (var key in props) {
-        if (!(key in paramsSupportedByFP || key in objectProps)) {
+        // Ignore props that are Flash parameters or managed by this component.
+        if (props.hasOwnProperty(key) &&
+            !paramsSupportedByFP.hasOwnProperty(key) &&
+            !objectProps.hasOwnProperty(key)) {
           objectProps[key] = props[key];
         }
       }
 
-      var objectArguments = [objectProps];
+      var objectChildren = objectProps.children;
 
       for (var key in state.params) {
-        objectArguments.push(
+        objectChildren.push(
           React.DOM.param({
             key: key,
             name: key,
@@ -265,11 +271,13 @@
         );
       }
 
-      if (props.children) {
-        objectArguments.push(props.children);
+      // Push `props.children` to the end of the children, React will generate a
+      // key warning if there are multiple children. This is preferable for now.
+      if (props.children != null) {
+        objectChildren.push(props.children);
       }
 
-      return React.DOM.object.apply(null, objectArguments);
+      return React.DOM.object(objectProps);
     }
   });
 

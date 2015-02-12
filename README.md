@@ -1,6 +1,6 @@
 # react-swf
 
-Shockwave Flash Player component for React. Only 1.3kb.
+Shockwave Flash Player component for React. Only 1.1kb.
 
 ```
 <ReactSWF
@@ -13,10 +13,9 @@ Shockwave Flash Player component for React. Only 1.3kb.
 />
 ```
 ```js
-// getFPVersion() returns 'X.Y.Z' or null when not supported.
-// isFPVersionSupported(string) supports 'X.Y.Z', 'X.Y' and 'X' version format.
+// Test if Flash Player version is supported and output the actual version.
 if (ReactSWF.isFPVersionSupported('10.0')) {
-  alert('Flash Player ' + ReactSWF.getFPVersion() + ' is supported');
+  alert('Flash Player ' + ReactSWF.getFPVersion() + ' is installed');
 }
 ```
 ```js
@@ -26,7 +25,7 @@ var returnValue = thisOrRef.getDOMNode().myEICallback(...);
 
 ## Installation
 
-#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.9.7/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.9.7/react-swf.js)
+#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.10.0/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.10.0/react-swf.js)
 
 ```
 <!-- Global module -->
@@ -52,7 +51,9 @@ npm install --save react-swf
 bower install --save react-swf
 ```
 
-## Special properties
+## Properties
+
+Standard DOM properties are forwarded to the underlying `<object>`.
 
 Detailed explanation of most properties found at [[Flash OBJECT and EMBED tag attributes]](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
 
@@ -84,31 +85,60 @@ seamlessTabbing {boolean} - true*, false
 wmode {enum} - window*, direct, opaque, transparent, gpu
 ```
 
-## ExternalInterface
+## Methods
+
+```
+getFPVersion()
+  returns {?string} 'X.Y.Z'-version or null.
+
+  Returns installed Flash Player version. Result is cached.
+  Must not be called in a non-browser environment.
+```
+```
+isFPVersionSupported(versionString)
+  versionString {string} 'X.Y.Z', 'X.Y' or 'X'.
+  returns {boolean} true if supported.
+
+  Returns if installed Flash Player meets version requirement.
+  Must not be called in a non-browser environment.
+```
+
+## AS3 ExternalInterface
 
 #### ExternalInterface.addCallback
 
-If the movie uses `ExternalInterface.addCallback` you must provide a globally unique DOM `id` to `ReactSWF` for IE8-10. This is not automatic as there exists no isolated mechanism that can guarantee the creation of IDs that are identical on both server and client, yet unique.
+Returned strings should be encoded using `encodeStringForJS`.
+
+You must provide a unique DOM `id` to `ReactSWF` for IE8-10.
 
 ```
-<ReactSWF id="guid_001" ... />
+<ReactSWF id="my_guid_123" ... />
 ```
 
 #### ExternalInterface.call
 
-If the movie uses `ExternalInterface.call` it should use one of the following ActionScript 3 functions to safeguard against run-time errors and string corruption from unsafe chars. Encoded strings are automatically decoded by the JavaScript run-time.
+String arguments should be encoded using `encodeStringForJS`.
+
+#### encodeStringForJS
+
+The Flash run-time does not sufficiently encode strings passed to JavaScript. This can cause run-time errors, string corruption or character substitution to occur.
+
+`encodeUnicodeStringForJS` should be used when the string is untrusted or contains special characters.
+`encodeASCIIStringForJS` is a cheap alternative when the string is trusted or sufficiently sanitized.
+
+Encoded strings are transparently decoded by the JavaScript run-time.
 
 ```as3
-var matchUnsafeSlashChar:RegExp = /\\/g;
+var ENCODE_UNSAFE_ASCII_CHARS_REGEX:RegExp = /\\/g;
 
-// Encode unsafe ASCII-chars for ExternalInterface.call.
+// Encode unsafe ASCII-chars for use with ExternalInterface.
 // \0 is not encoded and may throw a JavaScript error or corrupt the string.
 function encodeASCIIStringForJS(value:String):String {
-  return value.replace(matchUnsafeSlashChar, '////');
+  return value.replace(ENCODE_UNSAFE_ASCII_CHARS_REGEX, '\\\\');
 }
 ```
 ```as3
-var matchAnyUnsafeChars:RegExp = new RegExp(
+var ENCODE_UNSAFE_UNICODE_CHARS_REGEX:RegExp = new RegExp(
   // Backslash (\) and NULL-char (\0)
   '[\\\\\\0' +
   // Line separator (0x2028), paragraph separator (0x2029)
@@ -120,10 +150,10 @@ var matchAnyUnsafeChars:RegExp = new RegExp(
   'g'
 );
 
-// Encode unsafe Unicode-chars for ExternalInterface.call.
-// 0xD800-0xDFFF are considered invalid and may be replaced with 0xFFFD.
+// Encode unsafe Unicode-chars for use with ExternalInterface.
+// 0xD800-0xDFFF are considered invalid and may be substituted with 0xFFFD.
 function encodeUnicodeStringForJS(value:String):String {
-  return value.replace(matchAnyUnsafeChars, function():String {
+  return value.replace(ENCODE_UNSAFE_UNICODE_CHARS_REGEX, function():String {
     var charCode:Number = arguments[0].charCodeAt(0);
     return (
       charCode === 92 ? '\\\\' :
@@ -132,3 +162,4 @@ function encodeUnicodeStringForJS(value:String):String {
   });
 }
 ```
+

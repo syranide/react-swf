@@ -1,6 +1,6 @@
 {
   "name": "react-swf",
-  "version": "0.9.7",
+  "version": "0.10.0",
   "license": "MIT",
   "description": "Shockwave Flash Player component for React",
   "authors": ["Andreas Svensson <andreas@syranide.com>"],
