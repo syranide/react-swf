@@ -1,6 +1,8 @@
 # react-swf
 
-Shockwave Flash Player component for React. Only 1.1kb.
+Shockwave Flash Player component for React.
+
+Supports all browsers supported by React.
 
 ```
 <ReactSWF
@@ -19,8 +21,8 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 }
 ```
 ```js
-// ExternalInterface callbacks are simply invoked on the DOM node as usual.
-var returnValue = thisOrRef.getDOMNode().myEICallback(...);
+// ExternalInterface callbacks are invoked on the DOM node as usual.
+var returnValue = thisOrRef.getFPNode().myEICallback(...);
 ```
 
 ## Properties
@@ -57,7 +59,9 @@ seamlessTabbing {boolean} - true*, false
 wmode {enum} - window*, direct, opaque, transparent, gpu
 ```
 
-## Methods
+## API
+
+#### Static methods
 
 ```
 getFPVersion()
@@ -73,6 +77,16 @@ isFPVersionSupported(versionString)
 
   Returns if installed Flash Player meets version requirement.
   Must not be called in a non-browser environment.
+```
+
+#### Instance methods
+
+```
+getFPDOMNode()
+  returns {?DOMNode} Flash Player object DOM node.
+
+  Returns the Flash Player object DOM node.
+  Should be prefered over `React.findDOMNode`.
 ```
 
 ## AS3 ExternalInterface

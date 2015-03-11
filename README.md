@@ -1,6 +1,11 @@
 # react-swf
 
-Shockwave Flash Player component for React. Only 1.1kb.
+Shockwave Flash Player component for React.
+
+Supports all browsers supported by React.
+
+Download [source](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.js), [minified](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.min.js) (UMD), `npm install react-swf` (CJS), `bower install react-swf` (UMD)
+
 
 ```
 <ReactSWF
@@ -19,37 +24,15 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 }
 ```
 ```js
-// ExternalInterface callbacks are simply invoked on the DOM node as usual.
-var returnValue = thisOrRef.getDOMNode().myEICallback(...);
+// ExternalInterface callbacks are invoked on the DOM node as usual.
+var returnValue = thisOrRef.getFPNode().myEICallback(...);
 ```
 
-## Installation
+## Breaking changes
 
-#### Universal script [(minified)](//raw.githubusercontent.com/syranide/react-swf/v0.10.0/react-swf.min.js) [(source)](//raw.githubusercontent.com/syranide/react-swf/v0.10.0/react-swf.js)
+#### 0.11.0
 
-```
-<!-- Global module -->
-<script src="react-swf.js"></script>
-```
-```
-// AMD module
-define(['react-swf'], function(ReactSWF) { });
-```
-```
-// CommonJS module
-var ReactSWF = require('react-swf');
-```
-
-#### Package managers
-
-```
-# CommonJS module
-npm install --save react-swf
-```
-```
-# Universal module
-bower install --save react-swf
-```
+React 0.13 components no longer support `swf.getDOMNode()`, use `swf.getFPDOMNode()` instead.
 
 ## Properties
 
@@ -85,7 +68,9 @@ seamlessTabbing {boolean} - true*, false
 wmode {enum} - window*, direct, opaque, transparent, gpu
 ```
 
-## Methods
+## API
+
+#### Static methods
 
 ```
 getFPVersion()
@@ -101,6 +86,16 @@ isFPVersionSupported(versionString)
 
   Returns if installed Flash Player meets version requirement.
   Must not be called in a non-browser environment.
+```
+
+#### Instance methods
+
+```
+getFPDOMNode()
+  returns {?DOMNode} Flash Player object DOM node.
+
+  Returns the Flash Player object DOM node.
+  Should be prefered over `React.findDOMNode`.
 ```
 
 ## AS3 ExternalInterface
@@ -162,4 +157,3 @@ function encodeUnicodeStringForJS(value:String):String {
   });
 }
 ```
-
