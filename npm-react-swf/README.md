@@ -25,6 +25,13 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 var returnValue = thisOrRef.getFPNode().myEICallback(...);
 ```
 
+## Breaking changes
+
+#### 0.11.0
+
+* React 0.13 components no longer support `swf.getDOMNode()`, use `swf.getFPDOMNode()` instead.
+* Depends on `Object.is()`, [polyfills are available](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
+
 ## Properties
 
 Standard DOM properties are forwarded to the underlying `<object>`.
