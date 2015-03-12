@@ -4,6 +4,8 @@ Shockwave Flash Player component for React.
 
 Supports all browsers supported by React.
 
+Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+
 ```
 <ReactSWF
   src="example.swf"
