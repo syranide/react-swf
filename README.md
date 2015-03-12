@@ -4,6 +4,8 @@ Shockwave Flash Player component for React.
 
 Supports all browsers supported by React.
 
+Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+
 Download [source](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.js), [minified](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.min.js) (UMD), `npm install react-swf` (CJS), `bower install react-swf` (UMD)
 
 
