@@ -1,4 +1,4 @@
-# react-swf
+## ReactSWF ![](https://img.shields.io/npm/v/react-swf.svg)
 
 Shockwave Flash Player component for React.
 
@@ -24,7 +24,7 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 ```
 ```js
 // ExternalInterface callbacks are invoked on the DOM node as usual.
-var returnValue = thisOrRef.getFPNode().myEICallback(...);
+var returnValue = thisOrRef.getFPDOMNode().myEICallback(...);
 ```
 
 ## Breaking changes
