@@ -1,13 +1,10 @@
-# react-swf
+## ReactSWF ![](https://img.shields.io/github/release/syranide/react-swf.svg) ![](https://img.shields.io/badge/npm-react--swf-blue.svg) ![](https://img.shields.io/badge/bower-react--swf-blue.svg)
 
 Shockwave Flash Player component for React.
 
 Supports all browsers supported by React.
 
 Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
-
-Download [source](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.js), [minified](//raw.githubusercontent.com/syranide/react-swf/v0.11.0/react-swf.min.js) (UMD), `npm install react-swf` (CJS), `bower install react-swf` (UMD)
-
 
 ```
 <ReactSWF
@@ -27,7 +24,7 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 ```
 ```js
 // ExternalInterface callbacks are invoked on the DOM node as usual.
-var returnValue = thisOrRef.getFPNode().myEICallback(...);
+var returnValue = thisOrRef.getFPDOMNode().myEICallback(...);
 ```
 
 ## Breaking changes
