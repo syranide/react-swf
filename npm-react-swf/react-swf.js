@@ -1,4 +1,4 @@
-/*! react-swf v0.11.0 | @syranide | MIT license */
+/*! react-swf v0.11.1 | @syranide | MIT license */
 
 'use strict';
 
@@ -175,6 +175,7 @@ function isFPVersionSupported(versionString) {
 }
 
 
+/** @constructor */
 function ReactSWF(props) {
   React.Component.call(this, props);
 
