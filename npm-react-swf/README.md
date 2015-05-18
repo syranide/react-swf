@@ -38,7 +38,7 @@ var returnValue = thisOrRef.getFPDOMNode().myEICallback(...);
 
 Standard DOM properties are forwarded to the underlying `<object>`.
 
-Detailed explanation of most properties found at [[Flash OBJECT and EMBED tag attributes]](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
+Changes to props cannot be and are not reflected by an already mounted SWF (except for `width` and `height`). You must manually provide a computed `key` to ensure the component is reset when appropriate. Beware, this also applies to `src`.
 
 ```
 src {string} [required]
@@ -67,6 +67,8 @@ scale {enum} - default*, noborder, exactfit, noscale
 seamlessTabbing {boolean} - true*, false
 wmode {enum} - window*, direct, opaque, transparent, gpu
 ```
+
+Detailed explanation of most properties found at [[Flash OBJECT and EMBED tag attributes]](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
 
 ## API
 
