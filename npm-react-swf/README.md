@@ -1,6 +1,6 @@
 ## ReactSWF ![](https://img.shields.io/npm/v/react-swf.svg)
 
-Shockwave Flash Player component for React.
+Shockwave Flash Player component for React. GCC `ADVANCED` optimizations compatible.
 
 Supports all browsers supported by React.
 
@@ -24,14 +24,14 @@ if (ReactSWF.isFPVersionSupported('10.0')) {
 ```
 ```js
 // ExternalInterface callbacks are invoked on the DOM node as usual.
-var returnValue = thisOrRef.getFPDOMNode().myEICallback(...);
+var returnValue = ref.getFPDOMNode().myEICallback(...);
 ```
 
 ## Breaking changes
 
 #### 0.11.0
 
-* React 0.13 components no longer support `swf.getDOMNode()`, use `swf.getFPDOMNode()` instead.
+* React 0.13 components no longer support `ref.getDOMNode()`, use `ref.getFPDOMNode()` instead.
 * Depends on `Object.is()`, [polyfills are available](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
 
 ## Properties
@@ -102,9 +102,38 @@ getFPDOMNode()
 
 ## AS3 ExternalInterface
 
+#### Security flaws
+```
+Escape object key characters for FP:
+"&" => "&amp;"
+"<" => "&lt;"
+"\"" => "&quot;"
+
+Escape object key characters for JS:
+"\r" => "\\r"
+"\"" => "\\\""
++ wrap key string with "\""
+identifiers with keyword names must also be quoted for JS
+
+Escape string characters for JS:
+0x005C => "\\\\" (Backslash)
+0x2028 => "\\u2028" (Line separator)
+0x2029 => "\\u2029" (Paragraph separator)
+
+Invalid UTF8 characters for FP and JS:
+0x0000        (NULL character)
+0xD800-0xDFFF (Non private use surrogates)
+0xFDD0-0xFDEF (Non-characters)
+0xFFFE-0xFFFF (Non-characters)
+remove or replace with "\uFFFD" (replacement character)
+can only be produced by String.fromCharCode(c) in FP, not "\uXXXX" (exception: 0x0000)
+```
+
+This list *may* be incomplete.
+
 #### ExternalInterface.addCallback
 
-Returned strings should be encoded using `encodeStringForJS`.
+Returned strings should be encoded using `StringForJS.encode`.
 
 You must provide a unique DOM `id` to `ReactSWF` for IE8-10.
 
@@ -114,48 +143,42 @@ You must provide a unique DOM `id` to `ReactSWF` for IE8-10.
 
 #### ExternalInterface.call
 
-String arguments should be encoded using `encodeStringForJS`.
+String arguments should be encoded using `StringForJS.encode`.
 
-#### encodeStringForJS
+#### StringForJS.encode
 
-The Flash run-time does not sufficiently encode strings passed to JavaScript. This can cause run-time errors, string corruption or character substitution to occur.
-
-`encodeUnicodeStringForJS` should be used when the string is untrusted or contains special characters.
-`encodeASCIIStringForJS` is a cheap alternative when the string is trusted or sufficiently sanitized.
-
-Encoded strings are transparently decoded by the JavaScript run-time.
+The Flash run-time does not sufficiently encode strings passed to JavaScript. This can cause run-time errors, string corruption or character substitution to occur. Encoded strings are transparently decoded by the JavaScript run-time.
 
 ```as3
-var ENCODE_UNSAFE_ASCII_CHARS_REGEX:RegExp = /\\/g;
+public class StringForJS {
+  private static var UNSAFE_CHARS_REGEX:RegExp = new RegExp(
+    // NULL-char (0x00) and backslash (0x5C)
+    "[\\x00\\\\" +
+    // Line separator (0x2028), paragraph separator (0x2029)
+    "\u2028-\u2029" +
+    // Non private use surrogates (0xD800 - 0xDFFF)
+    String.fromCharCode(0xD800) + "-" + String.fromCharCode(0xDFFF) +
+    // Non-characters (0xFDD0 - 0xFDEF)
+    String.fromCharCode(0xFDD0) + "-" + String.fromCharCode(0xFDEF) +
+    // Non-characters (0xFFFE + 0xFFFF)
+    String.fromCharCode(0xFFFE) + String.fromCharCode(0xFFFF) + "]",
+    "g"
+  );
 
-// Encode unsafe ASCII-chars for use with ExternalInterface.
-// \0 is not encoded and may throw a JavaScript error or corrupt the string.
-function encodeASCIIStringForJS(value:String):String {
-  return value.replace(ENCODE_UNSAFE_ASCII_CHARS_REGEX, '\\\\');
-}
-```
-```as3
-var ENCODE_UNSAFE_UNICODE_CHARS_REGEX:RegExp = new RegExp(
-  // Backslash (\) and NULL-char (\0)
-  '[\\\\\\0' +
-  // Line separator (0x2028), paragraph separator (0x2029)
-  String.fromCharCode(0x2028) + String.fromCharCode(0x2029) +
-  // Non-characters (0xFDD0 - 0xFDEF)
-  String.fromCharCode(0xfdd0) + '-' + String.fromCharCode(0xfdef) +
-  // Non-characters (0xFFFE + 0xFFFF)
-  String.fromCharCode(0xfffe) + String.fromCharCode(0xffff) + ']',
-  'g'
-);
+  private static function unsafeCharEscaper():String {
+    switch (arguments[0]) {
+      case "\u0000": return "\\0";
+      case "\u005C": return "\\\\";
+      case "\u2028": return "\\u2028";
+      case "\u2029": return "\\u2029";
+      default:       return "\uFFFD";
+    };
+  }
 
-// Encode unsafe Unicode-chars for use with ExternalInterface.
-// 0xD800-0xDFFF are considered invalid and may be substituted with 0xFFFD.
-function encodeUnicodeStringForJS(value:String):String {
-  return value.replace(ENCODE_UNSAFE_UNICODE_CHARS_REGEX, function():String {
-    var charCode:Number = arguments[0].charCodeAt(0);
-    return (
-      charCode === 92 ? '\\\\' :
-      charCode === 0 ? '\\0' : '\\u' + charCode.toString(16)
-    );
-  });
+  // Encode unsafe strings for use with ExternalInterface. Invalid characters
+  // are substituted by the Unicode replacement character.
+  public static function encode(value:String):String {
+    return value.replace(UNSAFE_CHARS_REGEX, unsafeCharEscaper);
+  }
 }
 ```

@@ -1,4 +1,4 @@
-/*! react-swf v0.11.1 | @syranide | MIT license */
+/*! react-swf v0.12.0 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -56,11 +56,11 @@
   };
 
   var booleanFPParams = {
-    allowFullScreen: 1,
-    loop: 1,
-    menu: 1,
-    play: 1,
-    seamlessTabbing: 1
+    allowFullScreen: true,
+    loop: true,
+    menu: true,
+    play: true,
+    seamlessTabbing: true
   };
 
 
@@ -104,7 +104,15 @@
   }
 
 
-  var installedFPVersion;
+  var memoizedFPVersion;
+
+  function getMemoizedFPVersion() {
+    if (memoizedFPVersion === undefined) {
+      memoizedFPVersion = getFPVersion();
+    }
+
+    return memoizedFPVersion;
+  }
 
   /**
    * Detect installed Flash Player version. Cached.
@@ -112,45 +120,45 @@
    * @return {?string} 'X.Y.Z'-version or null.
    */
   function getFPVersion() {
-    if (installedFPVersion === undefined) {
-      if (typeof navigator !== 'undefined') {
-        var navFPPlugin =
-          navigator.plugins && navigator.plugins['Shockwave Flash'];
-        var navFPMimeType =
-          navigator.mimeTypes && navigator.mimeTypes[mimeTypeFP];
+    if (typeof navigator !== 'undefined') {
+      var navFPPlugin = (
+        navigator.plugins &&
+        navigator.plugins['Shockwave Flash']
+      );
+      var navFPMimeType = (
+        navigator.mimeTypes &&
+        navigator.mimeTypes[mimeTypeFP]
+      );
 
-        if (navFPPlugin && navFPMimeType && navFPMimeType.enabledPlugin) {
-          try {
-            return installedFPVersion = (
-              navFPPlugin
-                .description
-                .match(/(\d+)\.(\d+) r(\d+)/)
-                .slice(1)
-                .join('.')
-            );
-          } catch (e) {
-          }
-        }
-      }
-
-      // ActiveXObject-fallback for IE8-10
-      if (typeof ActiveXObject !== 'undefined') {
+      if (navFPPlugin && navFPMimeType && navFPMimeType.enabledPlugin) {
         try {
-          return installedFPVersion = (
-            new ActiveXObject('ShockwaveFlash.ShockwaveFlash')
-              .GetVariable('$version')
-              .match(/(\d+),(\d+),(\d+)/)
+          return (
+            navFPPlugin
+              .description
+              .match(/(\d+)\.(\d+) r(\d+)/)
               .slice(1)
               .join('.')
           );
         } catch (e) {
         }
       }
-
-      installedFPVersion = null;
     }
 
-    return installedFPVersion;
+    // ActiveXObject-fallback for IE8-10
+    if (typeof ActiveXObject !== 'undefined') {
+      try {
+        return (
+          new ActiveXObject('ShockwaveFlash.ShockwaveFlash')
+            .GetVariable('$version')
+            .match(/(\d+),(\d+),(\d+)/)
+            .slice(1)
+            .join('.')
+        );
+      } catch (e) {
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -160,7 +168,7 @@
    * @return {boolean} true if supported.
    */
   function isFPVersionSupported(versionString) {
-    var installedString = getFPVersion();
+    var installedString = getMemoizedFPVersion();
 
     if (installedString == null) {
       return false;
@@ -215,13 +223,14 @@
       }
     }
 
+    this._node = null;
     this.state = {
       src: props.src,
       params: params
     };
   }
 
-  ReactSWF.getFPVersion = getFPVersion;
+  ReactSWF.getFPVersion = getMemoizedFPVersion;
   ReactSWF.isFPVersionSupported = isFPVersionSupported;
 
   ReactSWF.propTypes = {
@@ -269,7 +278,7 @@
   ReactSWF.prototype.constructor = ReactSWF;
 
   ReactSWF.prototype.getFPDOMNode = function() {
-    return React.findDOMNode(this);
+    return this._node;
   };
 
   ReactSWF.prototype.shouldComponentUpdate = function(nextProps) {
@@ -299,7 +308,7 @@
   ReactSWF.prototype.componentWillUnmount = function() {
     // IE8 leaks nodes if AS3 `ExternalInterface.addCallback`-functions remain.
     if (document.documentMode < 9) {
-      var node = this.getFPDOMNode();
+      var node = this._node;
 
       // Node-methods are not enumerable in IE8, but properties are.
       for (var key in node) {
@@ -311,6 +320,7 @@
   };
 
   ReactSWF.prototype.render = function() {
+    var that = this;
     var props = this.props;
     var state = this.state;
 
@@ -319,6 +329,7 @@
     // we must leave it up to the user.
 
     var objectProps = {
+      ref: function(c) { that._node = c; },
       children: [],
       type: mimeTypeFP,
       data: state.src,
