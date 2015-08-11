@@ -1,4 +1,4 @@
-/*! react-swf v0.12.1 | @syranide | MIT license */
+/*! react-swf v0.12.2 | @syranide | MIT license */
 
 'use strict';
 
@@ -187,6 +187,11 @@ function isFPVersionSupported(versionString) {
 function ReactSWF(props) {
   React.Component.call(this, props);
 
+  var that = this;
+  this._refCallback = function(c) {
+    that._node = c;
+  };
+
   // The only way to change Flash parameters or reload the movie is to update
   // the key of the ReactSWF element. This unmounts the previous instance and
   // reloads the movie. Store initial values to keep the DOM consistent.
@@ -322,7 +327,7 @@ ReactSWF.prototype.render = function() {
   // we must leave it up to the user.
 
   var objectProps = {
-    ref: function(c) { that._node = c; },
+    ref: this._refCallback,
     children: [],
     type: mimeTypeFP,
     data: state.src,
