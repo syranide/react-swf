@@ -1,8 +1,9 @@
-/*! react-swf v0.12.2 | @syranide | MIT license */
+/*! react-swf v0.12.3 | @syranide | MIT license */
 
 'use strict';
 
 var React = require('react');
+var PropTypes = React.PropTypes;
 
 var mimeTypeFP = 'application/x-shockwave-flash';
 
@@ -228,52 +229,35 @@ function ReactSWF(props) {
   };
 }
 
+Object.assign(ReactSWF, React.Component);
+ReactSWF.prototype = Object.create(React.Component.prototype);
+ReactSWF.prototype.constructor = ReactSWF;
+
 ReactSWF.getFPVersion = getMemoizedFPVersion;
 ReactSWF.isFPVersionSupported = isFPVersionSupported;
 
 ReactSWF.propTypes = {
-  src: React.PropTypes.string.isRequired,
+  src: PropTypes.string.isRequired,
 
-  flashVars: React.PropTypes.oneOfType([
-    React.PropTypes.object, React.PropTypes.string
-  ]),
+  flashVars: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 
-  allowFullScreen: React.PropTypes.bool,
-  allowNetworking: React.PropTypes.oneOf([
-    'all', 'internal', 'none'
-  ]),
-  allowScriptAccess: React.PropTypes.oneOf([
-    'always', 'sameDomain', 'never'
-  ]),
+  allowFullScreen: PropTypes.bool,
+  allowNetworking: PropTypes.oneOf(['all', 'internal', 'none']),
+  allowScriptAccess: PropTypes.oneOf(['always', 'sameDomain', 'never']),
 
-  align: React.PropTypes.oneOf([
-    'l', 't', 'r'
-  ]),
-  base: React.PropTypes.string,
-  bgcolor: React.PropTypes.string,
-  fullScreenAspectRatio: React.PropTypes.oneOf([
-    'portrait', 'landscape'
-  ]),
-  loop: React.PropTypes.bool,
-  menu: React.PropTypes.bool,
-  play: React.PropTypes.bool,
-  quality: React.PropTypes.oneOf([
-    'low', 'autolow', 'autohigh', 'medium', 'high', 'best'
-  ]),
-  salign: React.PropTypes.oneOf([
-    'l', 't', 'r', 'tl', 'tr'
-  ]),
-  scale: React.PropTypes.oneOf([
-    'default', 'noborder', 'exactfit', 'noscale'
-  ]),
-  seamlessTabbing: React.PropTypes.bool,
-  wmode: React.PropTypes.oneOf([
-    'window', 'direct', 'opaque', 'transparent', 'gpu'
-  ])
+  align: PropTypes.oneOf(['l', 't', 'r']),
+  base: PropTypes.string,
+  bgcolor: PropTypes.string,
+  fullScreenAspectRatio: PropTypes.oneOf(['portrait', 'landscape']),
+  loop: PropTypes.bool,
+  menu: PropTypes.bool,
+  play: PropTypes.bool,
+  quality: PropTypes.oneOf(['low', 'autolow', 'autohigh', 'medium', 'high', 'best']),
+  salign: PropTypes.oneOf(['l', 't', 'r', 'tl', 'tr']),
+  scale: PropTypes.oneOf(['default', 'noborder', 'exactfit', 'noscale']),
+  seamlessTabbing: PropTypes.bool,
+  wmode: PropTypes.oneOf(['window', 'direct', 'opaque', 'transparent', 'gpu'])
 };
-
-ReactSWF.prototype = Object.create(React.Component.prototype);
-ReactSWF.prototype.constructor = ReactSWF;
 
 ReactSWF.prototype.getFPDOMNode = function() {
   return this._node;
