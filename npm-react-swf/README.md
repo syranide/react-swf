@@ -4,7 +4,7 @@ Shockwave Flash Player component for React. GCC `ADVANCED` optimizations compati
 
 Supports all browsers supported by React.
 
-Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Polyfill_for_non-ES6_browsers) and [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
 
 ```
 <ReactSWF
@@ -29,10 +29,14 @@ var returnValue = ref.getFPDOMNode().myEICallback(...);
 
 ## Breaking changes
 
+#### 0.12.3
+
+* Depends on `Object.assign()`, [polyfills are available.](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
+
 #### 0.11.0
 
 * React 0.13 components no longer support `ref.getDOMNode()`, use `ref.getFPDOMNode()` instead.
-* Depends on `Object.is()`, [polyfills are available](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
+* Depends on `Object.is()`, [polyfills are available](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Polyfill_for_non-ES6_browsers).
 
 ## Properties
 
