@@ -6,7 +6,9 @@ Supports all browsers supported by React.
 
 Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Polyfill_for_non-ES6_browsers) and [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
 
-```
+Use [SWFPlayerVersion](https://github.com/syranide/swf-player-version) to determine SWF Player support.
+
+```jsx
 <ReactSWF
   src="example.swf"
   id="guid_001"
@@ -16,22 +18,62 @@ Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScri
   flashVars={{foo: 'A', bar: 1}}
 />
 ```
-```js
-// Test if Flash Player version is supported and output the actual version.
-if (ReactSWF.isFPVersionSupported('10.0')) {
-  alert('Flash Player ' + ReactSWF.getFPVersion() + ' is installed');
+```jsx
+const SWF_ID_PREFIX = '__MyExternalInterfaceExample_SWFID_';
+const SWF_CALL_NAME_PREFIX = '__MyExternalInterfaceExample_SWFCall_';
+
+let nextUID = 0;
+
+class MyExternalInterfaceExample extends React.Component {
+  constructor(props) {
+    super(props);
+
+    // For most purposes nextUID is sufficient. However, if you rely on
+    // non-trivial server rendering you must generate deterministic UIDs per
+    // React root to avoid markup mismatch.
+    this._uid = nextUID++;
+
+    window[SWF_CALL_NAME_PREFIX + this._uid] = this.handleSWFCall.bind(this);
+  }
+
+  componentWillUnmount() {
+    delete window[SWF_CALL_NAME_PREFIX + this._uid];
+  }
+
+  handleSWFCall() {
+    // Beware; SWF calls are executed in the context of SWF Player.
+    console.log('SWFCall', arguments);
+    return 'foobar';
+  }
+
+  invokeSWFMyCallback(arg) {
+    // Beware; SWF Player does not sufficiently escape serialized arguments.
+    return this._swfPlayerNode.myCallback(arg);
+  }
+
+  render() {
+    // Globally unique ID is required for IE<11 for ExternalInterface callbacks.
+    return (
+      <ReactSWF
+        ...
+        ref={c => this._swfPlayerNode = c}
+        id={SWF_ID_PREFIX + this._uid}
+        flashVars={{myCallbackName: SWF_CALL_NAME_PREFIX + this._uid}}
+      />
+    );
+  }
 }
-```
-```js
-// ExternalInterface callbacks are invoked on the DOM node as usual.
-var returnValue = ref.getFPDOMNode().myEICallback(...);
 ```
 
 ## Breaking changes
 
+#### 0.13.0
+
+* `getFPVersion` and `isFPVersionSupported` forked to [SWFPlayerVersion](https://github.com/syranide/swf-player-version) and dropped from ReactSWF. Replace `ReactSWF.getFPVersion => SWFPlayerVersion.get` and `ReactSWF.isFPVersionSupported => SWFPlayerVersion.isSupported`.
+
 #### 0.12.3
 
-* Depends on `Object.assign()`, [polyfills are available.](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
+* Depends on `Object.assign()`, [polyfills are available](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill).
 
 #### 0.11.0
 
@@ -75,24 +117,6 @@ wmode {enum} - window*, direct, opaque, transparent, gpu
 Detailed explanation of most properties found at [[Flash OBJECT and EMBED tag attributes]](http://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html).
 
 ## API
-
-#### Static methods
-
-```
-getFPVersion()
-  returns {?string} 'X.Y.Z'-version or null.
-
-  Returns installed Flash Player version. Result is cached.
-  Must not be called in a non-browser environment.
-```
-```
-isFPVersionSupported(versionString)
-  versionString {string} 'X.Y.Z', 'X.Y' or 'X'.
-  returns {boolean} true if supported.
-
-  Returns if installed Flash Player meets version requirement.
-  Must not be called in a non-browser environment.
-```
 
 #### Instance methods
 

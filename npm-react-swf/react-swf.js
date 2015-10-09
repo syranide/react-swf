@@ -1,11 +1,9 @@
-/*! react-swf v0.12.3 | @syranide | MIT license */
+/*! react-swf v0.13.0 | @syranide | MIT license */
 
 'use strict';
 
 var React = require('react');
 var PropTypes = React.PropTypes;
-
-var mimeTypeFP = 'application/x-shockwave-flash';
 
 /*
   flashVars = {key: string} or "key=value&..."
@@ -98,92 +96,6 @@ function encodeFlashVarsObject(object) {
 }
 
 
-var memoizedFPVersion;
-
-function getMemoizedFPVersion() {
-  if (memoizedFPVersion === undefined) {
-    memoizedFPVersion = getFPVersion();
-  }
-
-  return memoizedFPVersion;
-}
-
-/**
- * Detect installed Flash Player version. Cached.
- *
- * @return {?string} 'X.Y.Z'-version or null.
- */
-function getFPVersion() {
-  if (typeof navigator !== 'undefined') {
-    var navFPPlugin = (
-      navigator.plugins &&
-      navigator.plugins['Shockwave Flash']
-    );
-    var navFPMimeType = (
-      navigator.mimeTypes &&
-      navigator.mimeTypes[mimeTypeFP]
-    );
-
-    if (navFPPlugin && navFPMimeType && navFPMimeType.enabledPlugin) {
-      try {
-        return (
-          navFPPlugin
-            .description
-            .match(/(\d+)\.(\d+) r(\d+)/)
-            .slice(1)
-            .join('.')
-        );
-      } catch (e) {
-      }
-    }
-  }
-
-  // ActiveXObject-fallback for IE8-10
-  if (typeof ActiveXObject !== 'undefined') {
-    try {
-      return (
-        new ActiveXObject('ShockwaveFlash.ShockwaveFlash')
-          .GetVariable('$version')
-          .match(/(\d+),(\d+),(\d+)/)
-          .slice(1)
-          .join('.')
-      );
-    } catch (e) {
-    }
-  }
-
-  return null;
-}
-
-/**
- * Detect if installed Flash Player meets version requirement.
- *
- * @param {string} versionString 'X.Y.Z', 'X.Y' or 'X'.
- * @return {boolean} true if supported.
- */
-function isFPVersionSupported(versionString) {
-  var installedString = getMemoizedFPVersion();
-
-  if (installedString == null) {
-    return false;
-  }
-
-  var installedFields = installedString.split('.');
-  var requiredFields = versionString.split('.');
-
-  for (var i = 0; i < 3; i++) {
-    var installedNumber = +installedFields[i];
-    var requiredNumber = +(requiredFields[i] || 0);
-
-    if (installedNumber !== requiredNumber) {
-      return installedNumber > requiredNumber;
-    }
-  }
-
-  return true;
-}
-
-
 /** @constructor */
 function ReactSWF(props) {
   React.Component.call(this, props);
@@ -229,12 +141,9 @@ function ReactSWF(props) {
   };
 }
 
-Object.assign(ReactSWF, React.Component);
 ReactSWF.prototype = Object.create(React.Component.prototype);
 ReactSWF.prototype.constructor = ReactSWF;
-
-ReactSWF.getFPVersion = getMemoizedFPVersion;
-ReactSWF.isFPVersionSupported = isFPVersionSupported;
+Object.assign(ReactSWF, React.Component);
 
 ReactSWF.propTypes = {
   src: PropTypes.string.isRequired,
@@ -313,7 +222,7 @@ ReactSWF.prototype.render = function() {
   var objectProps = {
     ref: this._refCallback,
     children: [],
-    type: mimeTypeFP,
+    type: 'application/x-shockwave-flash',
     data: state.src,
     // Discard `props.src`
     src: null
