@@ -1,4 +1,4 @@
-/*! react-swf v0.13.0 | @syranide | MIT license */
+/*! react-swf v0.13.1 | @syranide | MIT license */
 
 'use strict';
 
@@ -15,6 +15,7 @@ var PropTypes = React.PropTypes;
   align = l, t, r
   base = url
   bgcolor = #RRGGBB
+  browserZoom = scale*, noscale
   fullScreenAspectRatio = portrait, landscape
   loop = true*, false
   menu = true*, false
@@ -36,6 +37,7 @@ var supportedFPParamNames = {
   align: 'align',
   base: 'base',
   bgcolor: 'bgcolor',
+  browserZoom: 'browserzoom',
   fullScreenAspectRatio: 'fullscreenaspectratio',
   loop: 'loop',
   menu: 'menu',
@@ -157,6 +159,7 @@ ReactSWF.propTypes = {
   align: PropTypes.oneOf(['l', 't', 'r']),
   base: PropTypes.string,
   bgcolor: PropTypes.string,
+  browserZoom: PropTypes.oneOf(['scale', 'noscale']),
   fullScreenAspectRatio: PropTypes.oneOf(['portrait', 'landscape']),
   loop: PropTypes.bool,
   menu: PropTypes.bool,
@@ -211,7 +214,6 @@ ReactSWF.prototype.componentWillUnmount = function() {
 };
 
 ReactSWF.prototype.render = function() {
-  var that = this;
   var props = this.props;
   var state = this.state;
 

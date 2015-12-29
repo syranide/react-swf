@@ -52,7 +52,7 @@ class MyExternalInterfaceExample extends React.Component {
   }
 
   render() {
-    // Globally unique ID is required for IE<11 for ExternalInterface callbacks.
+    // Globally unique ID is required for ExternalInterface callbacks in IE<11.
     return (
       <ReactSWF
         ...
@@ -103,6 +103,7 @@ allowScriptAccess {enum} - always, sameDomain*, never
 align {enum} - l, t, r
 base {string}
 bgcolor {string} - #RRGGBB
+browserZoom - scale*, noscale
 fullScreenAspectRatio {enum} - portrait, landscape
 loop {boolean} - true*, false
 menu {boolean} - true*, false

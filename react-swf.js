@@ -1,4 +1,4 @@
-/*! react-swf v0.13.0 | @syranide | MIT license */
+/*! react-swf v0.13.1 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -23,6 +23,7 @@
     align = l, t, r
     base = url
     bgcolor = #RRGGBB
+    browserZoom = scale*, noscale
     fullScreenAspectRatio = portrait, landscape
     loop = true*, false
     menu = true*, false
@@ -44,6 +45,7 @@
     align: 'align',
     base: 'base',
     bgcolor: 'bgcolor',
+    browserZoom: 'browserzoom',
     fullScreenAspectRatio: 'fullscreenaspectratio',
     loop: 'loop',
     menu: 'menu',
@@ -165,6 +167,7 @@
     align: PropTypes.oneOf(['l', 't', 'r']),
     base: PropTypes.string,
     bgcolor: PropTypes.string,
+    browserZoom: PropTypes.oneOf(['scale', 'noscale']),
     fullScreenAspectRatio: PropTypes.oneOf(['portrait', 'landscape']),
     loop: PropTypes.bool,
     menu: PropTypes.bool,
