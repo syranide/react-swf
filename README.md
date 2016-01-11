@@ -103,7 +103,7 @@ allowScriptAccess {enum} - always, sameDomain*, never
 align {enum} - l, t, r
 base {string}
 bgcolor {string} - #RRGGBB
-browserZoom - scale*, noscale
+browserZoom {enum} - scale*, noscale
 fullScreenAspectRatio {enum} - portrait, landscape
 loop {boolean} - true*, false
 menu {boolean} - true*, false
