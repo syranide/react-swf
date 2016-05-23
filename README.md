@@ -2,7 +2,7 @@
 
 Shockwave Flash Player component for React. GCC `ADVANCED` optimizations compatible.
 
-Supports all browsers supported by React.
+Supports all browsers supported by React except for IE8-9 (due to a React/DOM incompatibility).
 
 Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Polyfill_for_non-ES6_browsers) and [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
 

@@ -1,4 +1,4 @@
-/*! react-swf v0.13.2 | @syranide | MIT license */
+/*! react-swf v1.0.0 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -119,10 +119,7 @@
     // the key of the ReactSWF element. This unmounts the previous instance and
     // reloads the movie. Store initial values to keep the DOM consistent.
 
-    var params = {
-      // IE8 requires the `movie` parameter.
-      'movie': props.src
-    };
+    var params = {};
 
     for (var key in supportedFPParamNames) {
       if (supportedFPParamNames.hasOwnProperty(key) &&
@@ -205,20 +202,6 @@
     }
 
     return false;
-  };
-
-  ReactSWF.prototype.componentWillUnmount = function() {
-    // IE8 leaks nodes if AS3 `ExternalInterface.addCallback`-functions remain.
-    if (document.documentMode < 9) {
-      var node = this._node;
-
-      // Node-methods are not enumerable in IE8, but properties are.
-      for (var key in node) {
-        if (typeof node[key] === 'function') {
-          node[key] = null;
-        }
-      }
-    }
   };
 
   ReactSWF.prototype.render = function() {
