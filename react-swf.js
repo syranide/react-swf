@@ -223,9 +223,11 @@
 
     for (var key in props) {
       // Ignore props that are Flash parameters or managed by this component.
+      // except for "wmode" which is needed for non-overlapping in IE
       if (props.hasOwnProperty(key) &&
-          !supportedFPParamNames.hasOwnProperty(key) &&
-          !objectProps.hasOwnProperty(key)) {
+        ((key === 'wmode') ||
+         (!supportedFPParamNames.hasOwnProperty(key) &&
+          !objectProps.hasOwnProperty(key)))) {
         objectProps[key] = props[key];
       }
     }
