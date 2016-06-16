@@ -96,6 +96,7 @@ flashVars {object|string} - {key: {string}}, "key=value&..."
 ```
 ```
 allowFullScreen {boolean} - true, false*
+allowFullScreenInteractive {boolean} - true, false*
 allowNetworking {enum} - all*, internal, none
 allowScriptAccess {enum} - always, sameDomain*, never
 ```
