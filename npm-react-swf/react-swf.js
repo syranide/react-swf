@@ -9,6 +9,7 @@ var PropTypes = React.PropTypes;
   flashVars = {key: string} or "key=value&..."
 
   allowFullScreen = true, false*
+  allowFullScreenInteractive = true, false*
   allowNetworking = all*, internal, none
   allowScriptAccess = always, sameDomain, never
 
@@ -31,6 +32,7 @@ var supportedFPParamNames = {
   flashVars: 'flashvars',
 
   allowFullScreen: 'allowfullscreen',
+  allowFullScreenInteractive: 'allowfullscreeninteractive',
   allowNetworking: 'allownetworking',
   allowScriptAccess: 'allowscriptaccess',
 
@@ -51,6 +53,7 @@ var supportedFPParamNames = {
 
 var booleanFPParams = {
   allowFullScreen: true,
+  allowFullScreenInteractive: true,
   loop: true,
   menu: true,
   play: true,
@@ -150,6 +153,7 @@ ReactSWF.propTypes = {
   flashVars: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 
   allowFullScreen: PropTypes.bool,
+  allowFullScreenInteractive: PropTypes.bool,
   allowNetworking: PropTypes.oneOf(['all', 'internal', 'none']),
   allowScriptAccess: PropTypes.oneOf(['always', 'sameDomain', 'never']),
 
