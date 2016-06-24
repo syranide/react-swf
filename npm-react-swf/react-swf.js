@@ -1,4 +1,4 @@
-/*! react-swf v1.0.2 | @syranide | MIT license */
+/*! react-swf v1.0.3 | @syranide | MIT license */
 
 'use strict';
 
@@ -29,6 +29,8 @@ var PropTypes = React.PropTypes;
 */
 
 var supportedFPParamNames = {
+  movie: 'movie', // react-swf/compat for IE8
+
   flashVars: 'flashvars',
 
   allowFullScreen: 'allowfullscreen',
@@ -149,6 +151,7 @@ Object.assign(ReactSWF, React.Component);
 
 ReactSWF.propTypes = {
   src: PropTypes.string.isRequired,
+  movie: PropTypes.string, // react-swf/compat for IE8
 
   flashVars: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 

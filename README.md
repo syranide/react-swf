@@ -2,7 +2,7 @@
 
 Shockwave Flash Player component for React. GCC `ADVANCED` optimizations compatible.
 
-Supports all browsers supported by React except for IE8-9 (due to a React/DOM incompatibility).
+Supports all browsers supported by React. ReactSWFCompat is required to support IE8-9.
 
 Depends on [`Object.is()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is#Polyfill_for_non-ES6_browsers) and [`Object.assign()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill)
 
@@ -65,7 +65,27 @@ class MyExternalInterfaceExample extends React.Component {
 }
 ```
 
+## ReactSWFCompat
+
+ReactSWFCompat (`require('react-swf/compat')`) also supports IE8-9, but should only be used if you must support these browsers. Internally it uses `ReactDOMServer.renderToString` to render to markup and then immediately `ReactDOM.render` on-top of that. There may be some behavioral differences in edge-cases but overall it should behave just the same. Due to the design of React you are required to provide a container element, the SWF-markup will be rendered inside.
+
+```jsx
+<ReactSWFCompat
+  container={<div style={{background: '#cccccc'}} />}
+  src="example.swf"
+  id="guid_001"
+  width="300"
+  height="200"
+  wmode="transparent"
+  flashVars={{foo: 'A', bar: 1}}
+/>
+```
+
 ## Breaking changes
+
+#### 1.0.0
+
+* IE8-9 is no longer supported due to issues with the new DOM renderer in React 15. `ReactSWFCompat` has been introduced as a workaround to this.
 
 #### 0.13.0
 
