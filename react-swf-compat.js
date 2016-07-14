@@ -1,4 +1,4 @@
-/*! react-swf v1.0.4 | @syranide | MIT license */
+/*! react-swf v1.0.5 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -55,6 +55,20 @@
   ReactSWFCompat.prototype.componentDidUpdate = function() {
     var swfElement = this._createSWFElement();
     ReactDOM.render(swfElement, this._container);
+  };
+
+  ReactSWFCompat.prototype.componentWillUnmount = function() {
+    // IE8 leaks nodes if AS3 `ExternalInterface.addCallback`-functions remain.
+    if (document.documentMode < 9) {
+      var node = this.getFPDOMNode();
+
+      // Node-methods are not enumerable in IE8, but properties are.
+      for (var key in node) {
+        if (typeof node[key] === 'function') {
+          node[key] = null;
+        }
+      }
+    }
   };
 
   ReactSWFCompat.prototype.render = function() {
