@@ -1,4 +1,4 @@
-/*! react-swf v1.0.3 | @syranide | MIT license */
+/*! react-swf v1.0.4 | @syranide | MIT license */
 
 'use strict';
 
@@ -29,12 +29,12 @@ ReactSWFCompat.propTypes = {
 };
 
 ReactSWFCompat.prototype._createSWFElement = function() {
-  var swfProps = Object.assign({}, this.props);
-  swfProps.container = undefined;
-  swfProps.movie = swfProps.src;
-  swfProps.ref = this._swfRefCallback;
+  var props = Object.assign({}, this.props);
+  delete props.container;
+  props.movie = props.src;
+  props.ref = this._swfRefCallback;
 
-  return React.createElement(ReactSWF, swfProps);
+  return React.createElement(ReactSWF, props);
 };
 
 ReactSWFCompat.prototype.getFPDOMNode = function() {
