@@ -1,10 +1,10 @@
-/*! react-swf v1.0.5 | @syranide | MIT license */
+/*! react-swf v1.0.6 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     define(['react', 'react-dom', 'react-dom/server', 'react-swf'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('react'), require('react-dom'), require('react-dom-server'), require('react-swf'));
+    module.exports = factory(require('react'), require('react-dom'), require('react-dom/server'), require('react-swf'));
   } else {
     root.ReactSWFCompat = factory(root.React, root.ReactDOM, root.ReactDOMServer, root.ReactSWF);
   }
