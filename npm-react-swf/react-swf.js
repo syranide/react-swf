@@ -138,6 +138,11 @@ function ReactSWF(props) {
     }
   }
 
+  var ie = navigator.appName === 'Microsoft Internet Explorer';
+  if(ie) {
+    params['movie'] = props.src;
+  }
+
   this._node = null;
   this.state = {
     src: props.src,
