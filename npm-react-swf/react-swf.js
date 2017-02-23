@@ -221,10 +221,12 @@ ReactSWF.prototype.render = function() {
   };
 
   for (var key in props) {
-    // Ignore props that are Flash parameters or managed by this component.
-    if (props.hasOwnProperty(key) &&
-        !supportedFPParamNames.hasOwnProperty(key) &&
-        !objectProps.hasOwnProperty(key)) {
+      // Ignore props that are Flash parameters or managed by this component.
+      // except for "wmode" which is needed for non-overlapping in IE
+      if (props.hasOwnProperty(key) &&
+        ((key === 'wmode') ||
+         (!supportedFPParamNames.hasOwnProperty(key) &&
+          !objectProps.hasOwnProperty(key)))) {
       objectProps[key] = props[key];
     }
   }
