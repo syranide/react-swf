@@ -1,17 +1,15 @@
-/*! react-swf v1.0.6 | @syranide | MIT license */
+/*! react-swf v1.0.7 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['react', 'react-dom', 'react-dom/server', 'react-swf'], factory);
+    define(['prop-types', 'react', 'react-dom', 'react-dom/server', 'react-swf'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('react'), require('react-dom'), require('react-dom/server'), require('react-swf'));
+    module.exports = factory(require('prop-types'), require('react'), require('react-dom'), require('react-dom/server'), require('react-swf'));
   } else {
-    root.ReactSWFCompat = factory(root.React, root.ReactDOM, root.ReactDOMServer, root.ReactSWF);
+    root.ReactSWFCompat = factory(root.PropTypes, root.React, root.ReactDOM, root.ReactDOMServer, root.ReactSWF);
   }
-}(this, function(React, ReactDOM, ReactDOMServer, ReactSWF) {
+}(this, function(PropTypes, React, ReactDOM, ReactDOMServer, ReactSWF) {
   'use strict';
-
-  var PropTypes = React.PropTypes;
 
   function ReactSWFCompat(props) {
     React.Component.call(this, props);

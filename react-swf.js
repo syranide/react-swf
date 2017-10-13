@@ -1,17 +1,15 @@
-/*! react-swf v1.0.6 | @syranide | MIT license */
+/*! react-swf v1.0.7 | @syranide | MIT license */
 
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['react'], factory);
+    define(['prop-types', 'react'], factory);
   } else if (typeof exports === 'object') {
-    module.exports = factory(require('react'));
+    module.exports = factory(require('prop-types'), require('react'));
   } else {
-    root.ReactSWF = factory(root.React);
+    root.ReactSWF = factory(root.PropTypes, root.React);
   }
-}(this, function(React) {
+}(this, function(PropTypes, React) {
   'use strict';
-
-  var PropTypes = React.PropTypes;
 
   /*
     flashVars = {key: string} or "key=value&..."

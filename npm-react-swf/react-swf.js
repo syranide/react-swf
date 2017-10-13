@@ -1,9 +1,9 @@
-/*! react-swf v1.0.6 | @syranide | MIT license */
+/*! react-swf v1.0.7 | @syranide | MIT license */
 
 'use strict';
 
+var PropTypes = require('prop-types');
 var React = require('react');
-var PropTypes = React.PropTypes;
 
 /*
   flashVars = {key: string} or "key=value&..."
